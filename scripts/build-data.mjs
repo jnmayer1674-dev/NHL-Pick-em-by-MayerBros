@@ -18,10 +18,51 @@ function mapTeam(t){
   return s;
 }
 
+// Convert NHL "default" objects into a string safely
+function text(v){
+  if(v === null || v === undefined) return "";
+  if(typeof v === "string") return v.trim();
+  if(typeof v === "number") return String(v);
+  if(typeof v === "object"){
+    // common NHL pattern: { default: "Name" }
+    if(typeof v.default === "string") return v.default.trim();
+    if(typeof v.en === "string") return v.en.trim();
+  }
+  return "";
+}
+
+function playerId(row){
+  const id = row?.playerId ?? row?.id ?? row?.playerID ?? "";
+  return String(id).trim();
+}
+
+function playerName(row){
+  // Most common on club-stats: fullName can be a string OR an object with .default
+  const full = text(row?.fullName) || text(row?.name);
+  if(full) return full;
+
+  // Some feeds provide firstName/lastName objects
+  const first = text(row?.firstName);
+  const last = text(row?.lastName);
+  const combined = `${first} ${last}`.trim();
+  if(combined && combined !== "") return combined;
+
+  return "";
+}
+
+function normPos(p){
+  const s = String(p ?? "").toUpperCase().trim();
+  if(s === "L") return "LW";
+  if(s === "R") return "RW";
+  if(s === "LD" || s === "RD") return "D";
+  if(["C","LW","RW","D","G"].includes(s)) return s;
+  if(s === "F") return "C";
+  return s || "C";
+}
+
 // CBS Free Fantasy scoring
 function cbsSkater(row, pos){
-  const p = String(pos || "").toUpperCase();
-  const isD = (p === "D");
+  const isD = pos === "D";
 
   const goals = n(row.goals);
   const assists = n(row.assists);
@@ -69,59 +110,31 @@ async function j(url){
   return res.json();
 }
 
-// standings gives us all current NHL team abbrevs reliably
 async function getTeams(){
   const data = await j(`${NHL}/standings/now`);
   const set = new Set();
   for(const row of (data?.standings ?? [])){
-    const ab = row?.teamAbbrev?.default;
-    if(ab) set.add(ab.toUpperCase());
+    const ab = text(row?.teamAbbrev)?.toUpperCase() || text(row?.teamAbbrev?.default)?.toUpperCase();
+    const real = (row?.teamAbbrev?.default || row?.teamAbbrev);
+    if(real) set.add(String(real).toUpperCase());
   }
   return Array.from(set).sort();
 }
 
-// Club stats is complete for the season and includes the stars
 async function getClubStats(teamAbbrev){
-  // endpoint returns skaters + goalies season totals for a club
-  // (path names can vary slightly; we handle both)
   const data = await j(`${NHL}/club-stats/${teamAbbrev}/${SEASON}/${GAME_TYPE}`);
-
-  const skaters =
-    data?.skaters ?? data?.skaterStats ?? data?.skatersStats ?? [];
-
-  const goalies =
-    data?.goalies ?? data?.goalieStats ?? data?.goaliesStats ?? [];
-
+  const skaters = data?.skaters ?? data?.skaterStats ?? data?.skatersStats ?? [];
+  const goalies = data?.goalies ?? data?.goalieStats ?? data?.goaliesStats ?? [];
   return { skaters, goalies };
-}
-
-function normPos(p){
-  const s = String(p ?? "").toUpperCase().trim();
-  if(s === "L") return "LW";
-  if(s === "R") return "RW";
-  if(s === "LD" || s === "RD") return "D";
-  if(["C","LW","RW","D","G"].includes(s)) return s;
-  // sometimes forwards show "F"
-  if(s === "F") return "C";
-  return s || "C";
-}
-
-function playerName(row){
-  // club stats usually provide fullName, but fallback
-  return String(row.fullName ?? row.name ?? `${row.firstName ?? ""} ${row.lastName ?? ""}`.trim()).trim();
-}
-
-function playerId(row){
-  return String(row.playerId ?? row.id ?? row.playerID ?? "").trim();
 }
 
 async function main(){
   const teams = await getTeams();
-  const players = new Map(); // id -> best row
+  const players = new Map();
 
   for(const team of teams){
-    const t = mapTeam(team);
     const { skaters, goalies } = await getClubStats(team);
+    const t = mapTeam(team);
 
     for(const r of skaters){
       const id = playerId(r);
@@ -159,7 +172,6 @@ async function main(){
     }
   }
 
-  // sort league-wide and take Top 300
   const outPlayers = Array.from(players.values())
     .sort((a,b) => (b.draftPoints - a.draftPoints) || a.name.localeCompare(b.name))
     .slice(0, TOP_N);
@@ -169,7 +181,7 @@ async function main(){
     seasons: [SEASON],
     count: outPlayers.length,
     scoring: "CBS Sports NHL Fantasy (Free)",
-    notes: `Complete 2024–2025 club stats, then Top ${TOP_N} league-wide by CBS fantasy points.`
+    notes: `Complete 2024–2025 club stats, then Top ${TOP_N} league-wide by CBS fantasy points. Names normalized to strings.`
   };
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
