@@ -1,31 +1,58 @@
-name: Fetch team logos (manual)
+import fs from "node:fs";
+import path from "node:path";
 
-on:
-  workflow_dispatch:
+const OUT_DIR = path.join("assets", "logos");
+fs.mkdirSync(OUT_DIR, { recursive: true });
 
-permissions:
-  contents: write
+async function downloadToFile(url, filePath) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to download ${url} (${res.status})`);
+  }
+  const buffer = Buffer.from(await res.arrayBuffer());
+  fs.writeFileSync(filePath, buffer);
+}
 
-jobs:
-  fetch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+function writeUtahPlaceholder() {
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+  <rect width="100%" height="100%" rx="40" ry="40" fill="#111827"/>
+  <text x="50%" y="46%" text-anchor="middle" font-size="44" fill="#e5e7eb"
+        font-family="Arial" font-weight="700">UTA</text>
+  <text x="50%" y="64%" text-anchor="middle" font-size="18" fill="#9ca3af"
+        font-family="Arial">Mammoth</text>
+</svg>`;
+  fs.writeFileSync(path.join(OUT_DIR, "UTA.svg"), svg, "utf8");
+}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+async function main() {
+  const api =
+    "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams";
 
-      - name: Fetch logos
-        run: node scripts/fetchLogos.mjs
+  const response = await fetch(api);
+  const data = await response.json();
 
-      - name: Commit logos
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/logos
-          git commit -m "Add/update NHL team logos" || echo "No changes to commit"
-          git push
+  const teams =
+    data?.sports?.[0]?.leagues?.[0]?.teams?.map(t => t.team) ?? [];
 
+  let count = 0;
+
+  for (const team of teams) {
+    const abbr = team.abbreviation;
+    const logoUrl = team.logos?.[0]?.href;
+
+    if (!abbr || !logoUrl) continue;
+
+    const outPath = path.join(OUT_DIR, `${abbr}.png`);
+    await downloadToFile(logoUrl, outPath);
+    count++;
+  }
+
+  writeUtahPlaceholder();
+  console.log(`Saved ${count} team logos`);
+}
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
