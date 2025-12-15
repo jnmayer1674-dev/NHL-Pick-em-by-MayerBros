@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NHL Pick’em by MayerBros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="page">
+
+    <header class="top">
+      <div class="brand">
+        <h1 class="title">NHL Pick’em by MayerBros</h1>
+        <div class="subtitle">Draft by team • Blind draft • Last 7 completed seasons</div>
+      </div>
+    </header>
+
+    <!-- MODE SELECT -->
+    <section id="modeScreen" class="card mode-card">
+      <h2 class="card-title">Choose Game Mode</h2>
+      <div class="hint">Pick one. You can change modes later.</div>
+
+      <div class="mode-buttons">
+        <button id="startSingle" class="btn btn-primary" type="button">Start Single Player</button>
+        <button id="startVersus" class="btn" type="button">Start 2 Player Versus</button>
+      </div>
+    </section>
+
+    <!-- GAME UI -->
+    <section id="gameScreen" class="hidden">
+      <div class="card topbar">
+        <div class="top-actions">
+          <div class="status-left">
+            <div id="statusLine" class="status-line">—</div>
+            <div id="turnLine" class="status-line subtle">—</div>
+            <div class="status-line subtle">Blind draft: player values hidden.</div>
+          </div>
+
+          <div class="status-right">
+            <button id="btnChangeMode" class="btn" type="button">Change Mode</button>
+            <button id="btnNewGame" class="btn btn-primary" type="button">New Game</button>
+
+            <div class="team-badge">
+              <img id="teamLogo" class="team-logo" alt="" />
+              <div class="team-meta">
+                <div id="teamName" class="team-name">—</div>
+                <div id="timer" class="timer">30s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main class="grid">
+
+        <section class="card">
+          <div class="card-head">
+            <h2 class="card-title">Played For Team Over Last 7 Seasons</h2>
+            <div class="hint">Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.</div>
+          </div>
+
+          <div class="filters">
+            <label class="label">
+              Position:
+              <select id="posFilter" class="select">
+                <option value="All" selected>All</option>
+                <option value="C">C</option>
+                <option value="LW">LW</option>
+                <option value="RW">RW</option>
+                <option value="D">D</option>
+                <option value="G">G</option>
+              </select>
+            </label>
+
+            <label class="label">
+              Search:
+              <input id="searchInput" class="input" type="text" placeholder="type a name..." />
+            </label>
+
+            <div class="mini">
+              <div class="mini-label">Data</div>
+              <div id="dataStamp" class="mini-value">—</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th class="right pts-col">Pts</th>
+                </tr>
+              </thead>
+              <tbody id="playersBody"></tbody>
+            </table>
+          </div>
+
+          <div id="emptyMsg" class="empty hidden">
+            No players loaded yet. (If you opened file:/// locally, use Netlify.)
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2 class="card-title">Rosters</h2>
+            <div id="winnerLine" class="hint"></div>
+          </div>
+
+          <div id="rostersOne" class="rosters hidden">
+            <div class="roster">
+              <div class="roster-head">
+                <div class="roster-title">Player 1</div>
+                <div id="p1Score" class="roster-score">Score: 0</div>
+              </div>
+              <div id="p1Slots" class="slots"></div>
+            </div>
+          </div>
+
+          <div id="rostersTwo" class="rosters hidden">
+            <div class="roster">
+              <div class="roster-head">
+                <div class="roster-title">Player 1</div>
+                <div id="p1Score2" class="roster-score">Score: 0</div>
+              </div>
+              <div id="p1Slots2" class="slots"></div>
+            </div>
+
+            <div class="roster">
+              <div class="roster-head">
+                <div class="roster-title">Player 2</div>
+                <div id="p2Score" class="roster-score">Score: 0</div>
+              </div>
+              <div id="p2Slots" class="slots"></div>
+            </div>
+          </div>
+
+          <div class="slots-note">
+            Slots: C, LW, RW, D, D, G, FLEX, FLEX — FLEX accepts C/LW/RW only.
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="footer">
+        <div class="subtle">
+          Notes: Utah uses Arizona history when applicable. Team shown is the most recent team within the 7-season window.
+        </div>
+      </footer>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
