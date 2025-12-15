@@ -7,9 +7,21 @@ const OUT_FILE = path.join(OUT_DIR, "players.json");
 const NHL = "https://api-web.nhle.com/v1";
 const SEASON = "20242025";
 const GAME_TYPE = 2; // regular season
-const TOP_N = 300;
+const TOP_N = 600;
 
 function n(x){ return Number(x ?? 0) || 0; }
+
+// Convert NHL localized objects into strings safely
+function text(v){
+  if(v === null || v === undefined) return "";
+  if(typeof v === "string") return v.trim();
+  if(typeof v === "number") return String(v);
+  if(typeof v === "object"){
+    if(typeof v.default === "string") return v.default.trim();
+    if(typeof v.en === "string") return v.en.trim();
+  }
+  return "";
+}
 
 function mapTeam(t){
   const s = String(t ?? "").toUpperCase().trim();
@@ -18,52 +30,34 @@ function mapTeam(t){
   return s;
 }
 
-// Convert NHL "default" objects into a string safely
-function text(v){
-  if(v === null || v === undefined) return "";
-  if(typeof v === "string") return v.trim();
-  if(typeof v === "number") return String(v);
-  if(typeof v === "object"){
-    // common NHL pattern: { default: "Name" }
-    if(typeof v.default === "string") return v.default.trim();
-    if(typeof v.en === "string") return v.en.trim();
-  }
-  return "";
-}
-
 function playerId(row){
   const id = row?.playerId ?? row?.id ?? row?.playerID ?? "";
   return String(id).trim();
 }
 
 function playerName(row){
-  // Most common on club-stats: fullName can be a string OR an object with .default
   const full = text(row?.fullName) || text(row?.name);
   if(full) return full;
 
-  // Some feeds provide firstName/lastName objects
   const first = text(row?.firstName);
   const last = text(row?.lastName);
   const combined = `${first} ${last}`.trim();
-  if(combined && combined !== "") return combined;
-
-  return "";
+  return combined || "";
 }
 
-function normPos(p){
-  const s = String(p ?? "").toUpperCase().trim();
+function normPos(rawPos){
+  const s = text(rawPos).toUpperCase().trim();
   if(s === "L") return "LW";
   if(s === "R") return "RW";
   if(s === "LD" || s === "RD") return "D";
   if(["C","LW","RW","D","G"].includes(s)) return s;
-  if(s === "F") return "C";
+  if(s === "F") return "C"; // fallback
   return s || "C";
 }
 
 // CBS Free Fantasy scoring
 function cbsSkater(row, pos){
   const isD = pos === "D";
-
   const goals = n(row.goals);
   const assists = n(row.assists);
   const ppg = n(row.powerPlayGoals);
@@ -114,9 +108,8 @@ async function getTeams(){
   const data = await j(`${NHL}/standings/now`);
   const set = new Set();
   for(const row of (data?.standings ?? [])){
-    const ab = text(row?.teamAbbrev)?.toUpperCase() || text(row?.teamAbbrev?.default)?.toUpperCase();
-    const real = (row?.teamAbbrev?.default || row?.teamAbbrev);
-    if(real) set.add(String(real).toUpperCase());
+    const ab = row?.teamAbbrev?.default ?? row?.teamAbbrev;
+    if(ab) set.add(String(ab).toUpperCase());
   }
   return Array.from(set).sort();
 }
@@ -181,7 +174,7 @@ async function main(){
     seasons: [SEASON],
     count: outPlayers.length,
     scoring: "CBS Sports NHL Fantasy (Free)",
-    notes: `Complete 2024–2025 club stats, then Top ${TOP_N} league-wide by CBS fantasy points. Names normalized to strings.`
+    notes: `Complete 2024–2025 club stats, then Top ${TOP_N} league-wide by CBS fantasy points. Position + name normalization fixed.`
   };
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
