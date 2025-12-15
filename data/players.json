@@ -1,17 +1,17 @@
 {
   "meta": {
-    "generatedAt": "2025-12-15T19:26:15.015Z",
+    "generatedAt": "2025-12-15T19:29:27.330Z",
     "seasons": [
       "20242025"
     ],
     "count": 300,
     "scoring": "CBS Sports NHL Fantasy (Free)",
-    "notes": "Complete 2024–2025 club stats, then Top 300 league-wide by CBS fantasy points."
+    "notes": "Complete 2024–2025 club stats, then Top 300 league-wide by CBS fantasy points. Names normalized to strings."
   },
   "players": [
     {
       "id": "8476945",
-      "name": "[object Object] [object Object]",
+      "name": "Connor Hellebuyck",
       "pos": "G",
       "team": "WPG",
       "draftPoints": 444.8,
@@ -19,7 +19,7 @@
     },
     {
       "id": "8476883",
-      "name": "[object Object] [object Object]",
+      "name": "Andrei Vasilevskiy",
       "pos": "G",
       "team": "TBL",
       "draftPoints": 394.2,
@@ -27,7 +27,7 @@
     },
     {
       "id": "8480069",
-      "name": "[object Object] [object Object]",
+      "name": "Cale Makar",
       "pos": "D",
       "team": "COL",
       "draftPoints": 376,
@@ -35,7 +35,7 @@
     },
     {
       "id": "8479406",
-      "name": "[object Object] [object Object]",
+      "name": "Filip Gustavsson",
       "pos": "G",
       "team": "MIN",
       "draftPoints": 341.4,
@@ -43,7 +43,7 @@
     },
     {
       "id": "8479979",
-      "name": "[object Object] [object Object]",
+      "name": "Jake Oettinger",
       "pos": "G",
       "team": "DAL",
       "draftPoints": 334.8,
@@ -51,7 +51,7 @@
     },
     {
       "id": "8478009",
-      "name": "[object Object] [object Object]",
+      "name": "Ilya Sorokin",
       "pos": "G",
       "team": "NYI",
       "draftPoints": 322.6,
@@ -59,31 +59,31 @@
     },
     {
       "id": "8477934",
-      "name": "[object Object] [object Object]",
+      "name": "Leon Draisaitl",
       "pos": "C",
       "team": "EDM",
       "draftPoints": 312,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478460",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "CBJ",
-      "draftPoints": 309,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476453",
-      "name": "[object Object] [object Object]",
+      "name": "Nikita Kucherov",
       "pos": "RW",
       "team": "TBL",
       "draftPoints": 309,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478460",
+      "name": "Zach Werenski",
+      "pos": "D",
+      "team": "CBJ",
+      "draftPoints": 309,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8475311",
-      "name": "[object Object] [object Object]",
+      "name": "Darcy Kuemper",
       "pos": "G",
       "team": "LAK",
       "draftPoints": 306.6,
@@ -91,7 +91,7 @@
     },
     {
       "id": "8478470",
-      "name": "[object Object] [object Object]",
+      "name": "Samuel Montembeault",
       "pos": "G",
       "team": "MTL",
       "draftPoints": 306.6,
@@ -99,7 +99,7 @@
     },
     {
       "id": "8481692",
-      "name": "[object Object] [object Object]",
+      "name": "Dustin Wolf",
       "pos": "G",
       "team": "CGY",
       "draftPoints": 304.8,
@@ -107,7 +107,7 @@
     },
     {
       "id": "8478048",
-      "name": "[object Object] [object Object]",
+      "name": "Igor Shesterkin",
       "pos": "G",
       "team": "NYR",
       "draftPoints": 302.8,
@@ -115,7 +115,7 @@
     },
     {
       "id": "8475683",
-      "name": "[object Object] [object Object]",
+      "name": "Sergei Bobrovsky",
       "pos": "G",
       "team": "FLA",
       "draftPoints": 302.4,
@@ -123,7 +123,7 @@
     },
     {
       "id": "8477492",
-      "name": "[object Object] [object Object]",
+      "name": "Nathan MacKinnon",
       "pos": "C",
       "team": "COL",
       "draftPoints": 298,
@@ -131,7 +131,7 @@
     },
     {
       "id": "8478916",
-      "name": "[object Object] [object Object]",
+      "name": "Joey Daccord",
       "pos": "G",
       "team": "SEA",
       "draftPoints": 285.8,
@@ -139,7 +139,7 @@
     },
     {
       "id": "8478499",
-      "name": "[object Object] [object Object]",
+      "name": "Adin Hill",
       "pos": "G",
       "team": "VGK",
       "draftPoints": 285.4,
@@ -147,7 +147,7 @@
     },
     {
       "id": "8480313",
-      "name": "[object Object] [object Object]",
+      "name": "Logan Thompson",
       "pos": "G",
       "team": "WSH",
       "draftPoints": 272.4,
@@ -155,7 +155,7 @@
     },
     {
       "id": "8476412",
-      "name": "[object Object] [object Object]",
+      "name": "Jordan Binnington",
       "pos": "G",
       "team": "STL",
       "draftPoints": 266.4,
@@ -163,7 +163,7 @@
     },
     {
       "id": "8480800",
-      "name": "[object Object] [object Object]",
+      "name": "Quinn Hughes",
       "pos": "D",
       "team": "VAN",
       "draftPoints": 266,
@@ -171,7 +171,7 @@
     },
     {
       "id": "8477956",
-      "name": "[object Object] [object Object]",
+      "name": "David Pastrnak",
       "pos": "RW",
       "team": "BOS",
       "draftPoints": 264,
@@ -179,7 +179,7 @@
     },
     {
       "id": "8478872",
-      "name": "[object Object] [object Object]",
+      "name": "Karel Vejmelka",
       "pos": "G",
       "team": "UTA",
       "draftPoints": 263.8,
@@ -187,7 +187,7 @@
     },
     {
       "id": "8478398",
-      "name": "[object Object] [object Object]",
+      "name": "Kyle Connor",
       "pos": "LW",
       "team": "WPG",
       "draftPoints": 261,
@@ -195,7 +195,7 @@
     },
     {
       "id": "8478402",
-      "name": "[object Object] [object Object]",
+      "name": "Connor McDavid",
       "pos": "C",
       "team": "EDM",
       "draftPoints": 255,
@@ -203,7 +203,7 @@
     },
     {
       "id": "8478483",
-      "name": "[object Object] [object Object]",
+      "name": "Mitch Marner",
       "pos": "RW",
       "team": "TOR",
       "draftPoints": 255,
@@ -211,7 +211,7 @@
     },
     {
       "id": "8476999",
-      "name": "[object Object] [object Object]",
+      "name": "Linus Ullmark",
       "pos": "G",
       "team": "OTT",
       "draftPoints": 254.6,
@@ -219,7 +219,7 @@
     },
     {
       "id": "8480839",
-      "name": "[object Object] [object Object]",
+      "name": "Rasmus Dahlin",
       "pos": "D",
       "team": "BUF",
       "draftPoints": 254,
@@ -227,7 +227,7 @@
     },
     {
       "id": "8480843",
-      "name": "[object Object] [object Object]",
+      "name": "Lukas Dostal",
       "pos": "G",
       "team": "ANA",
       "draftPoints": 253.4,
@@ -235,7 +235,7 @@
     },
     {
       "id": "8478403",
-      "name": "[object Object] [object Object]",
+      "name": "Jack Eichel",
       "pos": "C",
       "team": "VGK",
       "draftPoints": 253,
@@ -243,7 +243,7 @@
     },
     {
       "id": "8480947",
-      "name": "[object Object] [object Object]",
+      "name": "Kevin Lankinen",
       "pos": "G",
       "team": "VAN",
       "draftPoints": 250.6,
@@ -251,7 +251,7 @@
     },
     {
       "id": "8475167",
-      "name": "[object Object] [object Object]",
+      "name": "Victor Hedman",
       "pos": "D",
       "team": "TBL",
       "draftPoints": 250,
@@ -259,7 +259,7 @@
     },
     {
       "id": "8479542",
-      "name": "[object Object] [object Object]",
+      "name": "Brandon Hagel",
       "pos": "LW",
       "team": "TBL",
       "draftPoints": 248,
@@ -267,7 +267,7 @@
     },
     {
       "id": "8479361",
-      "name": "[object Object] [object Object]",
+      "name": "Joseph Woll",
       "pos": "G",
       "team": "TOR",
       "draftPoints": 248,
@@ -275,7 +275,7 @@
     },
     {
       "id": "8480803",
-      "name": "[object Object] [object Object]",
+      "name": "Evan Bouchard",
       "pos": "D",
       "team": "EDM",
       "draftPoints": 246,
@@ -283,7 +283,7 @@
     },
     {
       "id": "8478007",
-      "name": "[object Object] [object Object]",
+      "name": "Elvis Merzlikins",
       "pos": "G",
       "team": "CBJ",
       "draftPoints": 245.8,
@@ -291,7 +291,7 @@
     },
     {
       "id": "8474593",
-      "name": "[object Object] [object Object]",
+      "name": "Jacob Markstrom",
       "pos": "G",
       "team": "NJD",
       "draftPoints": 239.6,
@@ -299,7 +299,7 @@
     },
     {
       "id": "8481611",
-      "name": "[object Object] [object Object]",
+      "name": "Pyotr Kochetkov",
       "pos": "G",
       "team": "CAR",
       "draftPoints": 239.4,
@@ -307,7 +307,7 @@
     },
     {
       "id": "8478010",
-      "name": "[object Object] [object Object]",
+      "name": "Brayden Point",
       "pos": "C",
       "team": "TBL",
       "draftPoints": 239,
@@ -315,7 +315,7 @@
     },
     {
       "id": "8479973",
-      "name": "[object Object] [object Object]",
+      "name": "Stuart Skinner",
       "pos": "G",
       "team": "EDM",
       "draftPoints": 238.4,
@@ -323,7 +323,7 @@
     },
     {
       "id": "8480280",
-      "name": "[object Object] [object Object]",
+      "name": "Jeremy Swayman",
       "pos": "G",
       "team": "BOS",
       "draftPoints": 237.2,
@@ -331,7 +331,7 @@
     },
     {
       "id": "8477404",
-      "name": "[object Object] [object Object]",
+      "name": "Jake Guentzel",
       "pos": "C",
       "team": "TBL",
       "draftPoints": 236,
@@ -339,7 +339,7 @@
     },
     {
       "id": "8476460",
-      "name": "[object Object] [object Object]",
+      "name": "Mark Scheifele",
       "pos": "C",
       "team": "WPG",
       "draftPoints": 236,
@@ -347,7 +347,7 @@
     },
     {
       "id": "8477939",
-      "name": "[object Object] [object Object]",
+      "name": "William Nylander",
       "pos": "RW",
       "team": "TOR",
       "draftPoints": 235,
@@ -355,7 +355,7 @@
     },
     {
       "id": "8477504",
-      "name": "[object Object] [object Object]",
+      "name": "Josh Morrissey",
       "pos": "D",
       "team": "WPG",
       "draftPoints": 234,
@@ -363,7 +363,7 @@
     },
     {
       "id": "8477424",
-      "name": "[object Object] [object Object]",
+      "name": "Juuse Saros",
       "pos": "G",
       "team": "NSH",
       "draftPoints": 233.2,
@@ -371,7 +371,7 @@
     },
     {
       "id": "8480018",
-      "name": "[object Object] [object Object]",
+      "name": "Nick Suzuki",
       "pos": "C",
       "team": "MTL",
       "draftPoints": 231,
@@ -379,7 +379,7 @@
     },
     {
       "id": "8476932",
-      "name": "[object Object] [object Object]",
+      "name": "Anthony Stolarz",
       "pos": "G",
       "team": "TOR",
       "draftPoints": 225.8,
@@ -387,7 +387,7 @@
     },
     {
       "id": "8480045",
-      "name": "[object Object] [object Object]",
+      "name": "Ukko-Pekka Luukkonen",
       "pos": "G",
       "team": "BUF",
       "draftPoints": 224.2,
@@ -395,7 +395,7 @@
     },
     {
       "id": "8477933",
-      "name": "[object Object] [object Object]",
+      "name": "Sam Reinhart",
       "pos": "C",
       "team": "FLA",
       "draftPoints": 220,
@@ -403,7 +403,7 @@
     },
     {
       "id": "8471214",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Ovechkin",
       "pos": "LW",
       "team": "WSH",
       "draftPoints": 219,
@@ -411,7 +411,7 @@
     },
     {
       "id": "8475660",
-      "name": "[object Object] [object Object]",
+      "name": "Cam Talbot",
       "pos": "G",
       "team": "DET",
       "draftPoints": 215.4,
@@ -419,7 +419,7 @@
     },
     {
       "id": "8475168",
-      "name": "[object Object] [object Object]",
+      "name": "Matt Duchene",
       "pos": "C",
       "team": "DAL",
       "draftPoints": 215,
@@ -427,47 +427,39 @@
     },
     {
       "id": "8481581",
-      "name": "[object Object] [object Object]",
+      "name": "Thomas Harley",
       "pos": "D",
       "team": "DAL",
       "draftPoints": 215,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478550",
+      "name": "Artemi Panarin",
+      "pos": "LW",
+      "team": "NYR",
+      "draftPoints": 214,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8480027",
-      "name": "[object Object] [object Object]",
+      "name": "Jason Robertson",
       "pos": "LW",
       "team": "DAL",
       "draftPoints": 214,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478550",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "NYR",
-      "draftPoints": 214,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8479323",
-      "name": "[object Object] [object Object]",
+      "name": "Adam Fox",
       "pos": "D",
       "team": "NYR",
       "draftPoints": 213,
       "bestSeason": "20242025"
     },
     {
-      "id": "8480893",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "CBJ",
-      "draftPoints": 210,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477960",
-      "name": "[object Object] [object Object]",
+      "name": "Adrian Kempe",
       "pos": "RW",
       "team": "LAK",
       "draftPoints": 210,
@@ -475,39 +467,47 @@
     },
     {
       "id": "8479318",
-      "name": "[object Object] [object Object]",
+      "name": "Auston Matthews",
       "pos": "C",
       "team": "TOR",
       "draftPoints": 210,
       "bestSeason": "20242025"
     },
     {
+      "id": "8480893",
+      "name": "Kirill Marchenko",
+      "pos": "RW",
+      "team": "CBJ",
+      "draftPoints": 210,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8483457",
-      "name": "[object Object] [object Object]",
+      "name": "Lane Hutson",
       "pos": "D",
       "team": "MTL",
       "draftPoints": 209,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475166",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "TOR",
-      "draftPoints": 208,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8479343",
-      "name": "[object Object] [object Object]",
+      "name": "Clayton Keller",
       "pos": "RW",
       "team": "UTA",
       "draftPoints": 208,
       "bestSeason": "20242025"
     },
     {
+      "id": "8475166",
+      "name": "John Tavares",
+      "pos": "C",
+      "team": "TOR",
+      "draftPoints": 208,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8471675",
-      "name": "[object Object] [object Object]",
+      "name": "Sidney Crosby",
       "pos": "C",
       "team": "PIT",
       "draftPoints": 207,
@@ -515,7 +515,7 @@
     },
     {
       "id": "8479407",
-      "name": "[object Object] [object Object]",
+      "name": "Jesper Bratt",
       "pos": "LW",
       "team": "NJD",
       "draftPoints": 206,
@@ -523,7 +523,7 @@
     },
     {
       "id": "8479385",
-      "name": "[object Object] [object Object]",
+      "name": "Jordan Kyrou",
       "pos": "RW",
       "team": "STL",
       "draftPoints": 206,
@@ -531,7 +531,7 @@
     },
     {
       "id": "8480023",
-      "name": "[object Object] [object Object]",
+      "name": "Robert Thomas",
       "pos": "C",
       "team": "STL",
       "draftPoints": 206,
@@ -539,7 +539,7 @@
     },
     {
       "id": "8477447",
-      "name": "[object Object] [object Object]",
+      "name": "Shea Theodore",
       "pos": "D",
       "team": "VGK",
       "draftPoints": 205,
@@ -547,7 +547,7 @@
     },
     {
       "id": "8478440",
-      "name": "[object Object] [object Object]",
+      "name": "Dylan Strome",
       "pos": "C",
       "team": "WSH",
       "draftPoints": 204,
@@ -555,7 +555,7 @@
     },
     {
       "id": "8479345",
-      "name": "[object Object] [object Object]",
+      "name": "Jakob Chychrun",
       "pos": "D",
       "team": "WSH",
       "draftPoints": 203,
@@ -563,7 +563,7 @@
     },
     {
       "id": "8481656",
-      "name": "[object Object] [object Object]",
+      "name": "Aliaksei Protas",
       "pos": "C",
       "team": "WSH",
       "draftPoints": 202,
@@ -571,7 +571,7 @@
     },
     {
       "id": "8481540",
-      "name": "[object Object] [object Object]",
+      "name": "Cole Caufield",
       "pos": "RW",
       "team": "MTL",
       "draftPoints": 196,
@@ -579,7 +579,7 @@
     },
     {
       "id": "8480002",
-      "name": "[object Object] [object Object]",
+      "name": "Nico Hischier",
       "pos": "C",
       "team": "NJD",
       "draftPoints": 196,
@@ -587,7 +587,7 @@
     },
     {
       "id": "8476880",
-      "name": "[object Object] [object Object]",
+      "name": "Tom Wilson",
       "pos": "RW",
       "team": "WSH",
       "draftPoints": 194,
@@ -595,7 +595,7 @@
     },
     {
       "id": "8479420",
-      "name": "[object Object] [object Object]",
+      "name": "Tage Thompson",
       "pos": "C",
       "team": "BUF",
       "draftPoints": 193,
@@ -603,7 +603,7 @@
     },
     {
       "id": "8477949",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Tuch",
       "pos": "RW",
       "team": "BUF",
       "draftPoints": 189,
@@ -611,7 +611,7 @@
     },
     {
       "id": "8478427",
-      "name": "[object Object] [object Object]",
+      "name": "Sebastian Aho",
       "pos": "C",
       "team": "CAR",
       "draftPoints": 189,
@@ -619,7 +619,7 @@
     },
     {
       "id": "8482740",
-      "name": "[object Object] [object Object]",
+      "name": "Wyatt Johnston",
       "pos": "C",
       "team": "DAL",
       "draftPoints": 188,
@@ -627,7 +627,7 @@
     },
     {
       "id": "8478449",
-      "name": "[object Object] [object Object]",
+      "name": "Roope Hintz",
       "pos": "C",
       "team": "DAL",
       "draftPoints": 187,
@@ -635,7 +635,7 @@
     },
     {
       "id": "8482116",
-      "name": "[object Object] [object Object]",
+      "name": "Tim Stützle",
       "pos": "C",
       "team": "OTT",
       "draftPoints": 187,
@@ -643,31 +643,31 @@
     },
     {
       "id": "8481035",
-      "name": "[object Object] [object Object]",
+      "name": "Samuel Ersson",
       "pos": "G",
       "team": "PHI",
       "draftPoints": 185.2,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482093",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "CAR",
-      "draftPoints": 185,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8481559",
-      "name": "[object Object] [object Object]",
+      "name": "Jack Hughes",
       "pos": "C",
       "team": "NJD",
       "draftPoints": 185,
       "bestSeason": "20242025"
     },
     {
+      "id": "8482093",
+      "name": "Seth Jarvis",
+      "pos": "C",
+      "team": "CAR",
+      "draftPoints": 185,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482105",
-      "name": "[object Object] [object Object]",
+      "name": "Jake Sanderson",
       "pos": "D",
       "team": "OTT",
       "draftPoints": 184,
@@ -675,7 +675,7 @@
     },
     {
       "id": "8479410",
-      "name": "[object Object] [object Object]",
+      "name": "Mikhail Sergachev",
       "pos": "D",
       "team": "UTA",
       "draftPoints": 184,
@@ -683,7 +683,7 @@
     },
     {
       "id": "8478038",
-      "name": "[object Object] [object Object]",
+      "name": "Devon Toews",
       "pos": "D",
       "team": "COL",
       "draftPoints": 183,
@@ -691,7 +691,7 @@
     },
     {
       "id": "8479400",
-      "name": "[object Object] [object Object]",
+      "name": "Pierre-Luc Dubois",
       "pos": "LW",
       "team": "WSH",
       "draftPoints": 183,
@@ -699,7 +699,7 @@
     },
     {
       "id": "8474590",
-      "name": "[object Object] [object Object]",
+      "name": "John Carlson",
       "pos": "D",
       "team": "WSH",
       "draftPoints": 181,
@@ -707,7 +707,7 @@
     },
     {
       "id": "8475717",
-      "name": "[object Object] [object Object]",
+      "name": "Calvin Pickard",
       "pos": "G",
       "team": "EDM",
       "draftPoints": 180.8,
@@ -715,39 +715,31 @@
     },
     {
       "id": "8482078",
-      "name": "[object Object] [object Object]",
+      "name": "Lucas Raymond",
       "pos": "LW",
       "team": "DET",
       "draftPoints": 180,
       "bestSeason": "20242025"
     },
     {
-      "id": "8481557",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "MIN",
-      "draftPoints": 180,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8475913",
-      "name": "[object Object] [object Object]",
+      "name": "Mark Stone",
       "pos": "RW",
       "team": "VGK",
       "draftPoints": 180,
       "bestSeason": "20242025"
     },
     {
-      "id": "8477346",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "CGY",
-      "draftPoints": 179,
+      "id": "8481557",
+      "name": "Matt Boldy",
+      "pos": "LW",
+      "team": "MIN",
+      "draftPoints": 180,
       "bestSeason": "20242025"
     },
     {
       "id": "8479337",
-      "name": "[object Object] [object Object]",
+      "name": "Alex DeBrincat",
       "pos": "RW",
       "team": "DET",
       "draftPoints": 179,
@@ -755,15 +747,23 @@
     },
     {
       "id": "8482077",
-      "name": "[object Object] [object Object]",
+      "name": "Dylan Holloway",
       "pos": "LW",
       "team": "STL",
       "draftPoints": 179,
       "bestSeason": "20242025"
     },
     {
+      "id": "8477346",
+      "name": "MacKenzie Weegar",
+      "pos": "D",
+      "team": "CGY",
+      "draftPoints": 179,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8478519",
-      "name": "[object Object] [object Object]",
+      "name": "Anthony Cirelli",
       "pos": "C",
       "team": "TBL",
       "draftPoints": 178,
@@ -771,7 +771,7 @@
     },
     {
       "id": "8479292",
-      "name": "[object Object] [object Object]",
+      "name": "Charlie Lindgren",
       "pos": "G",
       "team": "WSH",
       "draftPoints": 175.6,
@@ -779,7 +779,7 @@
     },
     {
       "id": "8471685",
-      "name": "[object Object] [object Object]",
+      "name": "Anze Kopitar",
       "pos": "C",
       "team": "LAK",
       "draftPoints": 173,
@@ -787,7 +787,7 @@
     },
     {
       "id": "8477493",
-      "name": "[object Object] [object Object]",
+      "name": "Aleksander Barkov",
       "pos": "C",
       "team": "FLA",
       "draftPoints": 172,
@@ -795,31 +795,31 @@
     },
     {
       "id": "8478469",
-      "name": "[object Object] [object Object]",
+      "name": "Thomas Chabot",
       "pos": "D",
       "team": "OTT",
       "draftPoints": 171,
       "bestSeason": "20242025"
     },
     {
-      "id": "8477940",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "WPG",
-      "draftPoints": 170,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480014",
-      "name": "[object Object] [object Object]",
+      "name": "Gabriel Vilardi",
       "pos": "C",
       "team": "WPG",
       "draftPoints": 170,
       "bestSeason": "20242025"
     },
     {
+      "id": "8477940",
+      "name": "Nikolaj Ehlers",
+      "pos": "LW",
+      "team": "WPG",
+      "draftPoints": 170,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482175",
-      "name": "[object Object] [object Object]",
+      "name": "JJ Peterka",
       "pos": "RW",
       "team": "BUF",
       "draftPoints": 168,
@@ -827,7 +827,7 @@
     },
     {
       "id": "8477946",
-      "name": "[object Object] [object Object]",
+      "name": "Dylan Larkin",
       "pos": "C",
       "team": "DET",
       "draftPoints": 167,
@@ -835,79 +835,79 @@
     },
     {
       "id": "8478439",
-      "name": "[object Object] [object Object]",
+      "name": "Travis Konecny",
       "pos": "RW",
       "team": "PHI",
       "draftPoints": 167,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476887",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "NSH",
-      "draftPoints": 166,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480208",
-      "name": "[object Object] [object Object]",
+      "name": "Drake Batherson",
       "pos": "RW",
       "team": "OTT",
       "draftPoints": 166,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476887",
+      "name": "Filip Forsberg",
+      "pos": "LW",
+      "team": "NSH",
+      "draftPoints": 166,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476881",
-      "name": "[object Object] [object Object]",
+      "name": "Tomas Hertl",
       "pos": "C",
       "team": "VGK",
       "draftPoints": 165,
       "bestSeason": "20242025"
     },
     {
-      "id": "8483431",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "UTA",
-      "draftPoints": 163,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8481580",
-      "name": "[object Object] [object Object]",
+      "name": "Connor McMichael",
       "pos": "C",
       "team": "WSH",
       "draftPoints": 163,
       "bestSeason": "20242025"
     },
     {
+      "id": "8483431",
+      "name": "Logan Cooley",
+      "pos": "C",
+      "team": "UTA",
+      "draftPoints": 163,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8477942",
-      "name": "[object Object] [object Object]",
+      "name": "Kevin Fiala",
       "pos": "LW",
       "team": "LAK",
       "draftPoints": 162,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476483",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "PIT",
-      "draftPoints": 162,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480145",
-      "name": "[object Object] [object Object]",
+      "name": "Neal Pionk",
       "pos": "D",
       "team": "WPG",
       "draftPoints": 162,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476483",
+      "name": "Rickard Rakell",
+      "pos": "RW",
+      "team": "PIT",
+      "draftPoints": 162,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8475172",
-      "name": "[object Object] [object Object]",
+      "name": "Nazem Kadri",
       "pos": "C",
       "team": "CGY",
       "draftPoints": 161,
@@ -915,7 +915,7 @@
     },
     {
       "id": "8477968",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Nedeljkovic",
       "pos": "G",
       "team": "PIT",
       "draftPoints": 160.4,
@@ -923,15 +923,23 @@
     },
     {
       "id": "8478864",
-      "name": "[object Object] [object Object]",
+      "name": "Kirill Kaprizov",
       "pos": "LW",
       "team": "MIN",
       "draftPoints": 160,
       "bestSeason": "20242025"
     },
     {
+      "id": "8474578",
+      "name": "Erik Karlsson",
+      "pos": "D",
+      "team": "PIT",
+      "draftPoints": 159,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8481605",
-      "name": "[object Object] [object Object]",
+      "name": "Jackson LaCombe",
       "pos": "D",
       "team": "ANA",
       "draftPoints": 159,
@@ -939,23 +947,15 @@
     },
     {
       "id": "8477497",
-      "name": "[object Object] [object Object]",
+      "name": "Sean Monahan",
       "pos": "C",
       "team": "CBJ",
       "draftPoints": 159,
       "bestSeason": "20242025"
     },
     {
-      "id": "8474578",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "PIT",
-      "draftPoints": 159,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477465",
-      "name": "[object Object] [object Object]",
+      "name": "Tristan Jarry",
       "pos": "G",
       "team": "PIT",
       "draftPoints": 157.4,
@@ -963,7 +963,7 @@
     },
     {
       "id": "8482720",
-      "name": "[object Object] [object Object]",
+      "name": "Matthew Knies",
       "pos": "LW",
       "team": "TOR",
       "draftPoints": 157,
@@ -971,7 +971,7 @@
     },
     {
       "id": "8477955",
-      "name": "[object Object] [object Object]",
+      "name": "Jared McCann",
       "pos": "LW",
       "team": "SEA",
       "draftPoints": 156,
@@ -979,31 +979,15 @@
     },
     {
       "id": "8482699",
-      "name": "[object Object] [object Object]",
+      "name": "Dylan Guenther",
       "pos": "RW",
       "team": "UTA",
       "draftPoints": 155,
       "bestSeason": "20242025"
     },
     {
-      "id": "8479987",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "BOS",
-      "draftPoints": 154,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8476906",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "CAR",
-      "draftPoints": 154,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477476",
-      "name": "[object Object] [object Object]",
+      "name": "Artturi Lehkonen",
       "pos": "LW",
       "team": "COL",
       "draftPoints": 154,
@@ -1011,47 +995,47 @@
     },
     {
       "id": "8482079",
-      "name": "[object Object] [object Object]",
+      "name": "Marco Rossi",
       "pos": "C",
       "team": "MIN",
       "draftPoints": 154,
       "bestSeason": "20242025"
     },
     {
+      "id": "8479987",
+      "name": "Morgan Geekie",
+      "pos": "C",
+      "team": "BOS",
+      "draftPoints": 154,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8481604",
-      "name": "[object Object] [object Object]",
+      "name": "Pavel Dorofeyev",
       "pos": "RW",
       "team": "VGK",
       "draftPoints": 154,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476906",
+      "name": "Shayne Gostisbehere",
+      "pos": "D",
+      "team": "CAR",
+      "draftPoints": 154,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8479193",
-      "name": "[object Object] [object Object]",
+      "name": "Casey DeSmith",
       "pos": "G",
       "team": "DAL",
       "draftPoints": 153.2,
       "bestSeason": "20242025"
     },
     {
-      "id": "8481542",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "DET",
-      "draftPoints": 153,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8477998",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "LAK",
-      "draftPoints": 153,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480801",
-      "name": "[object Object] [object Object]",
+      "name": "Brady Tkachuk",
       "pos": "LW",
       "team": "OTT",
       "draftPoints": 153,
@@ -1059,7 +1043,7 @@
     },
     {
       "id": "8476892",
-      "name": "[object Object] [object Object]",
+      "name": "Colton Parayko",
       "pos": "D",
       "team": "STL",
       "draftPoints": 153,
@@ -1067,15 +1051,31 @@
     },
     {
       "id": "8477964",
-      "name": "[object Object] [object Object]",
+      "name": "Ivan Barbashev",
       "pos": "LW",
       "team": "VGK",
       "draftPoints": 153,
       "bestSeason": "20242025"
     },
     {
+      "id": "8481542",
+      "name": "Moritz Seider",
+      "pos": "D",
+      "team": "DET",
+      "draftPoints": 153,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8477998",
+      "name": "Warren Foegele",
+      "pos": "LW",
+      "team": "LAK",
+      "draftPoints": 153,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476462",
-      "name": "[object Object] [object Object]",
+      "name": "Dougie Hamilton",
       "pos": "D",
       "team": "NJD",
       "draftPoints": 151,
@@ -1083,7 +1083,7 @@
     },
     {
       "id": "8480981",
-      "name": "[object Object] [object Object]",
+      "name": "Joel Hofer",
       "pos": "G",
       "team": "STL",
       "draftPoints": 150.6,
@@ -1091,7 +1091,7 @@
     },
     {
       "id": "8482124",
-      "name": "[object Object] [object Object]",
+      "name": "Quinton Byfield",
       "pos": "RW",
       "team": "LAK",
       "draftPoints": 150,
@@ -1099,7 +1099,7 @@
     },
     {
       "id": "8476456",
-      "name": "[object Object] [object Object]",
+      "name": "Jonathan Huberdeau",
       "pos": "LW",
       "team": "CGY",
       "draftPoints": 149,
@@ -1107,7 +1107,7 @@
     },
     {
       "id": "8476389",
-      "name": "[object Object] [object Object]",
+      "name": "Vincent Trocheck",
       "pos": "C",
       "team": "NYR",
       "draftPoints": 149,
@@ -1115,7 +1115,7 @@
     },
     {
       "id": "8474596",
-      "name": "[object Object] [object Object]",
+      "name": "Jake Allen",
       "pos": "G",
       "team": "NJD",
       "draftPoints": 148.8,
@@ -1123,7 +1123,7 @@
     },
     {
       "id": "8478055",
-      "name": "[object Object] [object Object]",
+      "name": "Gustav Forsling",
       "pos": "D",
       "team": "FLA",
       "draftPoints": 148,
@@ -1131,7 +1131,7 @@
     },
     {
       "id": "8475764",
-      "name": "[object Object] [object Object]",
+      "name": "Cam Fowler",
       "pos": "D",
       "team": "STL",
       "draftPoints": 147,
@@ -1139,47 +1139,39 @@
     },
     {
       "id": "8478396",
-      "name": "[object Object] [object Object]",
+      "name": "Noah Hanifin",
       "pos": "D",
       "team": "VGK",
       "draftPoints": 147,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478414",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "NJD",
-      "draftPoints": 146,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477402",
-      "name": "[object Object] [object Object]",
+      "name": "Pavel Buchnevich",
       "pos": "LW",
       "team": "STL",
       "draftPoints": 146,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478414",
+      "name": "Timo Meier",
+      "pos": "RW",
+      "team": "NJD",
+      "draftPoints": 146,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8484166",
-      "name": "[object Object] [object Object]",
+      "name": "Adam Fantilli",
       "pos": "C",
       "team": "CBJ",
       "draftPoints": 145,
       "bestSeason": "20242025"
     },
     {
-      "id": "8477987",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "CHI",
-      "draftPoints": 145,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8475314",
-      "name": "[object Object] [object Object]",
+      "name": "Anders Lee",
       "pos": "LW",
       "team": "NYI",
       "draftPoints": 145,
@@ -1187,15 +1179,23 @@
     },
     {
       "id": "8475810",
-      "name": "[object Object] [object Object]",
+      "name": "Bryan Rust",
       "pos": "RW",
       "team": "PIT",
       "draftPoints": 145,
       "bestSeason": "20242025"
     },
     {
+      "id": "8477987",
+      "name": "Ryan Donato",
+      "pos": "C",
+      "team": "CHI",
+      "draftPoints": 145,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482660",
-      "name": "[object Object] [object Object]",
+      "name": "Kent Johnson",
       "pos": "C",
       "team": "CBJ",
       "draftPoints": 144,
@@ -1203,7 +1203,7 @@
     },
     {
       "id": "8479314",
-      "name": "[object Object] [object Object]",
+      "name": "Matthew Tkachuk",
       "pos": "LW",
       "team": "FLA",
       "draftPoints": 144,
@@ -1211,47 +1211,47 @@
     },
     {
       "id": "8474151",
-      "name": "[object Object] [object Object]",
+      "name": "Ryan McDonagh",
       "pos": "D",
       "team": "TBL",
       "draftPoints": 144,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475722",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "BUF",
-      "draftPoints": 142,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8481716",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "CBJ",
-      "draftPoints": 142,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8484387",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "PHI",
-      "draftPoints": 142,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477986",
-      "name": "[object Object] [object Object]",
+      "name": "Brandon Montour",
       "pos": "D",
       "team": "SEA",
       "draftPoints": 142,
       "bestSeason": "20242025"
     },
     {
+      "id": "8481716",
+      "name": "Dmitri Voronkov",
+      "pos": "LW",
+      "team": "CBJ",
+      "draftPoints": 142,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8475722",
+      "name": "Jason Zucker",
+      "pos": "LW",
+      "team": "BUF",
+      "draftPoints": 142,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8484387",
+      "name": "Matvei Michkov",
+      "pos": "RW",
+      "team": "PHI",
+      "draftPoints": 142,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8477500",
-      "name": "[object Object] [object Object]",
+      "name": "Bo Horvat",
       "pos": "C",
       "team": "NYI",
       "draftPoints": 141,
@@ -1259,7 +1259,7 @@
     },
     {
       "id": "8478492",
-      "name": "[object Object] [object Object]",
+      "name": "Ilya Samsonov",
       "pos": "G",
       "team": "VGK",
       "draftPoints": 141,
@@ -1267,119 +1267,119 @@
     },
     {
       "id": "8477951",
-      "name": "[object Object] [object Object]",
+      "name": "Nick Schmaltz",
       "pos": "C",
       "team": "UTA",
       "draftPoints": 140,
       "bestSeason": "20242025"
     },
     {
-      "id": "8480802",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
+      "id": "8481524",
+      "name": "Bowen Byram",
+      "pos": "D",
       "team": "BUF",
       "draftPoints": 139,
       "bestSeason": "20242025"
     },
     {
-      "id": "8481524",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
+      "id": "8480802",
+      "name": "Ryan McLeod",
+      "pos": "C",
       "team": "BUF",
       "draftPoints": 139,
       "bestSeason": "20242025"
     },
     {
       "id": "8478407",
-      "name": "[object Object] [object Object]",
+      "name": "Vince Dunn",
       "pos": "D",
       "team": "SEA",
       "draftPoints": 138,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482684",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "NJD",
-      "draftPoints": 137,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8482149",
-      "name": "[object Object] [object Object]",
+      "name": "Cole Perfetti",
       "pos": "C",
       "team": "WPG",
       "draftPoints": 137,
       "bestSeason": "20242025"
     },
     {
+      "id": "8482684",
+      "name": "Luke Hughes",
+      "pos": "D",
+      "team": "NJD",
+      "draftPoints": 137,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8478975",
-      "name": "[object Object] [object Object]",
+      "name": "Mason Marchment",
       "pos": "LW",
       "team": "DAL",
       "draftPoints": 136,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478873",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "ANA",
-      "draftPoints": 135,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8474141",
-      "name": "[object Object] [object Object]",
+      "name": "Patrick Kane",
       "pos": "RW",
       "team": "DET",
       "draftPoints": 135,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478873",
+      "name": "Troy Terry",
+      "pos": "RW",
+      "team": "ANA",
+      "draftPoints": 135,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482821",
-      "name": "[object Object] [object Object]",
+      "name": "Arvid Soderblom",
       "pos": "G",
       "team": "CHI",
       "draftPoints": 134.2,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476434",
-      "name": "[object Object] [object Object]",
-      "pos": "G",
-      "team": "ANA",
-      "draftPoints": 134,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8478178",
-      "name": "[object Object] [object Object]",
+      "name": "Darren Raddysh",
       "pos": "D",
       "team": "TBL",
       "draftPoints": 134,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482745",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
+      "id": "8476434",
+      "name": "John Gibson",
+      "pos": "G",
       "team": "ANA",
-      "draftPoints": 132,
+      "draftPoints": 134,
       "bestSeason": "20242025"
     },
     {
       "id": "8484144",
-      "name": "[object Object] [object Object]",
+      "name": "Connor Bedard",
       "pos": "C",
       "team": "CHI",
       "draftPoints": 132,
       "bestSeason": "20242025"
     },
     {
+      "id": "8482745",
+      "name": "Mason McTavish",
+      "pos": "C",
+      "team": "ANA",
+      "draftPoints": 132,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482667",
-      "name": "[object Object] [object Object]",
+      "name": "William Eklund",
       "pos": "LW",
       "team": "SJS",
       "draftPoints": 132,
@@ -1387,7 +1387,7 @@
     },
     {
       "id": "8478435",
-      "name": "[object Object] [object Object]",
+      "name": "Dan Vladar",
       "pos": "G",
       "team": "CGY",
       "draftPoints": 131.4,
@@ -1395,23 +1395,15 @@
     },
     {
       "id": "8475218",
-      "name": "[object Object] [object Object]",
+      "name": "Mattias Ekholm",
       "pos": "D",
       "team": "EDM",
       "draftPoints": 131,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475786",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "EDM",
-      "draftPoints": 130,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8475692",
-      "name": "[object Object] [object Object]",
+      "name": "Mats Zuccarello",
       "pos": "RW",
       "team": "MIN",
       "draftPoints": 130,
@@ -1419,47 +1411,55 @@
     },
     {
       "id": "8476853",
-      "name": "[object Object] [object Object]",
+      "name": "Morgan Rielly",
       "pos": "D",
       "team": "TOR",
       "draftPoints": 130,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482679",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "CGY",
-      "draftPoints": 129,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8476454",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
+      "id": "8475786",
+      "name": "Zach Hyman",
+      "pos": "LW",
       "team": "EDM",
-      "draftPoints": 129,
+      "draftPoints": 130,
       "bestSeason": "20242025"
     },
     {
       "id": "8483515",
-      "name": "[object Object] [object Object]",
+      "name": "Juraj Slafkovský",
       "pos": "LW",
       "team": "MTL",
       "draftPoints": 129,
       "bestSeason": "20242025"
     },
     {
+      "id": "8482679",
+      "name": "Matt Coronato",
+      "pos": "RW",
+      "team": "CGY",
+      "draftPoints": 129,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476459",
-      "name": "[object Object] [object Object]",
+      "name": "Mika Zibanejad",
       "pos": "C",
       "team": "NYR",
       "draftPoints": 129,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476454",
+      "name": "Ryan Nugent-Hopkins",
+      "pos": "C",
+      "team": "EDM",
+      "draftPoints": 129,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8479496",
-      "name": "[object Object] [object Object]",
+      "name": "David Rittich",
       "pos": "G",
       "team": "LAK",
       "draftPoints": 128.8,
@@ -1467,7 +1467,7 @@
     },
     {
       "id": "8484801",
-      "name": "[object Object] [object Object]",
+      "name": "Macklin Celebrini",
       "pos": "C",
       "team": "SJS",
       "draftPoints": 128,
@@ -1475,7 +1475,7 @@
     },
     {
       "id": "8482155",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Laferriere",
       "pos": "RW",
       "team": "LAK",
       "draftPoints": 127,
@@ -1483,7 +1483,7 @@
     },
     {
       "id": "8479312",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Lyon",
       "pos": "G",
       "team": "DET",
       "draftPoints": 126.4,
@@ -1491,7 +1491,7 @@
     },
     {
       "id": "8476341",
-      "name": "[object Object] [object Object]",
+      "name": "Anton Forsberg",
       "pos": "G",
       "team": "OTT",
       "draftPoints": 126.4,
@@ -1499,7 +1499,7 @@
     },
     {
       "id": "8482113",
-      "name": "[object Object] [object Object]",
+      "name": "Anton Lundell",
       "pos": "C",
       "team": "FLA",
       "draftPoints": 126,
@@ -1507,7 +1507,7 @@
     },
     {
       "id": "8478882",
-      "name": "[object Object] [object Object]",
+      "name": "Vladislav Gavrikov",
       "pos": "D",
       "team": "LAK",
       "draftPoints": 126,
@@ -1515,7 +1515,7 @@
     },
     {
       "id": "8470594",
-      "name": "[object Object] [object Object]",
+      "name": "Marc-Andre Fleury",
       "pos": "G",
       "team": "MIN",
       "draftPoints": 125.4,
@@ -1523,7 +1523,7 @@
     },
     {
       "id": "8478500",
-      "name": "[object Object] [object Object]",
+      "name": "Ivan Provorov",
       "pos": "D",
       "team": "CBJ",
       "draftPoints": 125,
@@ -1531,23 +1531,15 @@
     },
     {
       "id": "8482730",
-      "name": "[object Object] [object Object]",
+      "name": "Brandt Clarke",
       "pos": "D",
       "team": "LAK",
       "draftPoints": 124,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482157",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "NYR",
-      "draftPoints": 124,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8475768",
-      "name": "[object Object] [object Object]",
+      "name": "Jaden Schwartz",
       "pos": "LW",
       "team": "SEA",
       "draftPoints": 124,
@@ -1555,63 +1547,71 @@
     },
     {
       "id": "8481598",
-      "name": "[object Object] [object Object]",
+      "name": "Philip Broberg",
       "pos": "D",
       "team": "STL",
       "draftPoints": 124,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476902",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "DAL",
-      "draftPoints": 123,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8475726",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "SJS",
-      "draftPoints": 123,
+      "id": "8482157",
+      "name": "Will Cuylle",
+      "pos": "LW",
+      "team": "NYR",
+      "draftPoints": 124,
       "bestSeason": "20242025"
     },
     {
       "id": "8475170",
-      "name": "[object Object] [object Object]",
+      "name": "Brayden Schenn",
       "pos": "C",
       "team": "STL",
       "draftPoints": 123,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476902",
+      "name": "Esa Lindell",
+      "pos": "D",
+      "team": "DAL",
+      "draftPoints": 123,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8478498",
-      "name": "[object Object] [object Object]",
+      "name": "Jake DeBrusk",
       "pos": "LW",
       "team": "VAN",
       "draftPoints": 123,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482671",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "BUF",
-      "draftPoints": 122,
+      "id": "8475726",
+      "name": "Tyler Toffoli",
+      "pos": "C",
+      "team": "SJS",
+      "draftPoints": 123,
       "bestSeason": "20242025"
     },
     {
       "id": "8480865",
-      "name": "[object Object] [object Object]",
+      "name": "Noah Dobson",
       "pos": "D",
       "team": "NYI",
       "draftPoints": 122,
       "bestSeason": "20242025"
     },
     {
+      "id": "8482671",
+      "name": "Owen Power",
+      "pos": "D",
+      "team": "BUF",
+      "draftPoints": 122,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8481519",
-      "name": "[object Object] [object Object]",
+      "name": "Spencer Knight",
       "pos": "G",
       "team": "FLA",
       "draftPoints": 121.6,
@@ -1619,71 +1619,55 @@
     },
     {
       "id": "8480459",
-      "name": "[object Object] [object Object]",
+      "name": "Pius Suter",
       "pos": "C",
       "team": "VAN",
       "draftPoints": 121,
       "bestSeason": "20242025"
     },
     {
-      "id": "8484153",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "ANA",
-      "draftPoints": 120,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8477498",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "EDM",
-      "draftPoints": 120,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476457",
-      "name": "[object Object] [object Object]",
+      "name": "Adam Larsson",
       "pos": "D",
       "team": "SEA",
       "draftPoints": 120,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482089",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "STL",
-      "draftPoints": 120,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8479353",
-      "name": "[object Object] [object Object]",
+      "name": "Brett Howden",
       "pos": "C",
       "team": "VGK",
       "draftPoints": 120,
       "bestSeason": "20242025"
     },
     {
-      "id": "8482762",
-      "name": "[object Object] [object Object]",
+      "id": "8477498",
+      "name": "Darnell Nurse",
       "pos": "D",
-      "team": "DET",
-      "draftPoints": 119,
+      "team": "EDM",
+      "draftPoints": 120,
       "bestSeason": "20242025"
     },
     {
-      "id": "8477935",
-      "name": "[object Object] [object Object]",
+      "id": "8482089",
+      "name": "Jake Neighbours",
+      "pos": "LW",
+      "team": "STL",
+      "draftPoints": 120,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8484153",
+      "name": "Leo Carlsson",
       "pos": "C",
-      "team": "FLA",
-      "draftPoints": 119,
+      "team": "ANA",
+      "draftPoints": 120,
       "bestSeason": "20242025"
     },
     {
       "id": "8474716",
-      "name": "[object Object] [object Object]",
+      "name": "Jared Spurgeon",
       "pos": "D",
       "team": "MIN",
       "draftPoints": 119,
@@ -1691,31 +1675,55 @@
     },
     {
       "id": "8477426",
-      "name": "[object Object] [object Object]",
+      "name": "Nick Paul",
       "pos": "LW",
       "team": "TBL",
       "draftPoints": 119,
       "bestSeason": "20242025"
     },
     {
-      "id": "8483445",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "ANA",
+      "id": "8477935",
+      "name": "Sam Bennett",
+      "pos": "C",
+      "team": "FLA",
+      "draftPoints": 119,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8482762",
+      "name": "Simon Edvinsson",
+      "pos": "D",
+      "team": "DET",
+      "draftPoints": 119,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8474565",
+      "name": "Alex Pietrangelo",
+      "pos": "D",
+      "team": "VGK",
       "draftPoints": 118,
       "bestSeason": "20242025"
     },
     {
       "id": "8480830",
-      "name": "[object Object] [object Object]",
+      "name": "Andrei Svechnikov",
       "pos": "RW",
       "team": "CAR",
       "draftPoints": 118,
       "bestSeason": "20242025"
     },
     {
+      "id": "8483445",
+      "name": "Cutter Gauthier",
+      "pos": "LW",
+      "team": "ANA",
+      "draftPoints": 118,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8473994",
-      "name": "[object Object] [object Object]",
+      "name": "Jamie Benn",
       "pos": "LW",
       "team": "DAL",
       "draftPoints": 118,
@@ -1723,7 +1731,7 @@
     },
     {
       "id": "8483524",
-      "name": "[object Object] [object Object]",
+      "name": "Shane Wright",
       "pos": "C",
       "team": "SEA",
       "draftPoints": 118,
@@ -1731,23 +1739,15 @@
     },
     {
       "id": "8482737",
-      "name": "[object Object] [object Object]",
+      "name": "Zachary Bolduc",
       "pos": "RW",
       "team": "STL",
       "draftPoints": 118,
       "bestSeason": "20242025"
     },
     {
-      "id": "8474565",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "VGK",
-      "draftPoints": 118,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8477409",
-      "name": "[object Object] [object Object]",
+      "name": "Carter Verhaeghe",
       "pos": "C",
       "team": "FLA",
       "draftPoints": 117,
@@ -1755,7 +1755,7 @@
     },
     {
       "id": "8481601",
-      "name": "[object Object] [object Object]",
+      "name": "Simon Holmstrom",
       "pos": "RW",
       "team": "NYI",
       "draftPoints": 117,
@@ -1763,55 +1763,55 @@
     },
     {
       "id": "8477932",
-      "name": "[object Object] [object Object]",
+      "name": "Aaron Ekblad",
       "pos": "D",
       "team": "FLA",
       "draftPoints": 116,
       "bestSeason": "20242025"
     },
     {
-      "id": "8479675",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "LAK",
-      "draftPoints": 116,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476891",
-      "name": "[object Object] [object Object]",
+      "name": "Matt Grzelcyk",
       "pos": "D",
       "team": "PIT",
       "draftPoints": 116,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476882",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "CHI",
-      "draftPoints": 115,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8476479",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
+      "id": "8479675",
+      "name": "Trevor Moore",
+      "pos": "LW",
       "team": "LAK",
-      "draftPoints": 115,
+      "draftPoints": 116,
       "bestSeason": "20242025"
     },
     {
       "id": "8481606",
-      "name": "[object Object] [object Object]",
+      "name": "Jordan Spence",
       "pos": "D",
       "team": "LAK",
       "draftPoints": 115,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476479",
+      "name": "Phillip Danault",
+      "pos": "C",
+      "team": "LAK",
+      "draftPoints": 115,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8476882",
+      "name": "Teuvo Teravainen",
+      "pos": "C",
+      "team": "CHI",
+      "draftPoints": 115,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8471734",
-      "name": "[object Object] [object Object]",
+      "name": "Jonathan Quick",
       "pos": "G",
       "team": "NYR",
       "draftPoints": 114.4,
@@ -1819,7 +1819,7 @@
     },
     {
       "id": "8475883",
-      "name": "[object Object] [object Object]",
+      "name": "Frederik Andersen",
       "pos": "G",
       "team": "CAR",
       "draftPoints": 114.2,
@@ -1827,23 +1827,15 @@
     },
     {
       "id": "8476914",
-      "name": "[object Object] [object Object]",
+      "name": "Joonas Korpisalo",
       "pos": "G",
       "team": "BOS",
       "draftPoints": 113.8,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475158",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "NSH",
-      "draftPoints": 113,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480849",
-      "name": "[object Object] [object Object]",
+      "name": "Barrett Hayton",
       "pos": "C",
       "team": "UTA",
       "draftPoints": 113,
@@ -1851,47 +1843,47 @@
     },
     {
       "id": "8478856",
-      "name": "[object Object] [object Object]",
+      "name": "Conor Garland",
       "pos": "RW",
       "team": "VAN",
       "draftPoints": 113,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475200",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "CAR",
-      "draftPoints": 112,
+      "id": "8475158",
+      "name": "Ryan O'Reilly",
+      "pos": "C",
+      "team": "NSH",
+      "draftPoints": 113,
       "bestSeason": "20242025"
     },
     {
       "id": "8475188",
-      "name": "[object Object] [object Object]",
+      "name": "Brayden McNabb",
       "pos": "D",
       "team": "VGK",
       "draftPoints": 112,
       "bestSeason": "20242025"
     },
     {
+      "id": "8475200",
+      "name": "Dmitry Orlov",
+      "pos": "D",
+      "team": "CAR",
+      "draftPoints": 112,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8480873",
-      "name": "[object Object] [object Object]",
+      "name": "Rasmus Sandin",
       "pos": "D",
       "team": "WSH",
       "draftPoints": 112,
       "bestSeason": "20242025"
     },
     {
-      "id": "8474564",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "NSH",
-      "draftPoints": 111,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8473512",
-      "name": "[object Object] [object Object]",
+      "name": "Claude Giroux",
       "pos": "RW",
       "team": "OTT",
       "draftPoints": 111,
@@ -1899,87 +1891,87 @@
     },
     {
       "id": "8482665",
-      "name": "[object Object] [object Object]",
+      "name": "Matty Beniers",
       "pos": "C",
       "team": "SEA",
       "draftPoints": 111,
       "bestSeason": "20242025"
     },
     {
+      "id": "8475799",
+      "name": "Nino Niederreiter",
+      "pos": "RW",
+      "team": "WPG",
+      "draftPoints": 111,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8475171",
-      "name": "[object Object] [object Object]",
+      "name": "Oliver Ekman-Larsson",
       "pos": "D",
       "team": "TOR",
       "draftPoints": 111,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475799",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "WPG",
+      "id": "8474564",
+      "name": "Steven Stamkos",
+      "pos": "C",
+      "team": "NSH",
       "draftPoints": 111,
       "bestSeason": "20242025"
     },
     {
-      "id": "8477496",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "BOS",
-      "draftPoints": 109,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8476958",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "CAR",
+      "id": "8478444",
+      "name": "Brock Boeser",
+      "pos": "RW",
+      "team": "VAN",
       "draftPoints": 109,
       "bestSeason": "20242025"
     },
     {
       "id": "8475754",
-      "name": "[object Object] [object Object]",
+      "name": "Brock Nelson",
       "pos": "C",
       "team": "NYI",
       "draftPoints": 109,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478444",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "VAN",
+      "id": "8477496",
+      "name": "Elias Lindholm",
+      "pos": "C",
+      "team": "BOS",
       "draftPoints": 109,
       "bestSeason": "20242025"
     },
     {
       "id": "8479425",
-      "name": "[object Object] [object Object]",
+      "name": "Filip Hronek",
       "pos": "D",
       "team": "VAN",
       "draftPoints": 109,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476958",
+      "name": "Jaccob Slavin",
+      "pos": "D",
+      "team": "CAR",
+      "draftPoints": 109,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476480",
-      "name": "[object Object] [object Object]",
+      "name": "Vladislav Namestnikov",
       "pos": "C",
       "team": "WPG",
       "draftPoints": 109,
       "bestSeason": "20242025"
     },
     {
-      "id": "8474600",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "NSH",
-      "draftPoints": 108,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476539",
-      "name": "[object Object] [object Object]",
+      "name": "Jonathan Marchessault",
       "pos": "RW",
       "team": "NSH",
       "draftPoints": 108,
@@ -1987,103 +1979,111 @@
     },
     {
       "id": "8475151",
-      "name": "[object Object] [object Object]",
+      "name": "Kyle Palmieri",
       "pos": "C",
       "team": "NYI",
       "draftPoints": 108,
       "bestSeason": "20242025"
     },
     {
+      "id": "8474600",
+      "name": "Roman Josi",
+      "pos": "D",
+      "team": "NSH",
+      "draftPoints": 108,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8482159",
-      "name": "[object Object] [object Object]",
+      "name": "Tyson Foerster",
       "pos": "RW",
       "team": "PHI",
       "draftPoints": 108,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478013",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "SJS",
-      "draftPoints": 107,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8482122",
-      "name": "[object Object] [object Object]",
+      "name": "Brock Faber",
       "pos": "D",
       "team": "MIN",
       "draftPoints": 107,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476474",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "NJD",
-      "draftPoints": 107,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8476461",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "PHI",
-      "draftPoints": 107,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476905",
-      "name": "[object Object] [object Object]",
+      "name": "Chandler Stephenson",
       "pos": "C",
       "team": "SEA",
       "draftPoints": 107,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478013",
+      "name": "Jake Walman",
+      "pos": "D",
+      "team": "SJS",
+      "draftPoints": 107,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8476461",
+      "name": "Sean Couturier",
+      "pos": "C",
+      "team": "PHI",
+      "draftPoints": 107,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8476474",
+      "name": "Stefan Noesen",
+      "pos": "RW",
+      "team": "NJD",
+      "draftPoints": 107,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8470613",
-      "name": "[object Object] [object Object]",
+      "name": "Brent Burns",
       "pos": "D",
       "team": "CAR",
       "draftPoints": 106,
       "bestSeason": "20242025"
     },
     {
-      "id": "8474149",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "DAL",
-      "draftPoints": 106,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8481596",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "OTT",
-      "draftPoints": 106,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8480891",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "UTA",
-      "draftPoints": 106,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480049",
-      "name": "[object Object] [object Object]",
+      "name": "Dylan Samberg",
       "pos": "D",
       "team": "WPG",
       "draftPoints": 106,
       "bestSeason": "20242025"
     },
     {
+      "id": "8474149",
+      "name": "Evgenii Dadonov",
+      "pos": "LW",
+      "team": "DAL",
+      "draftPoints": 106,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8480891",
+      "name": "Michael Kesselring",
+      "pos": "D",
+      "team": "UTA",
+      "draftPoints": 106,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8481596",
+      "name": "Shane Pinto",
+      "pos": "C",
+      "team": "OTT",
+      "draftPoints": 106,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8473986",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Killorn",
       "pos": "LW",
       "team": "ANA",
       "draftPoints": 105,
@@ -2091,7 +2091,7 @@
     },
     {
       "id": "8478366",
-      "name": "[object Object] [object Object]",
+      "name": "Frank Vatrano",
       "pos": "RW",
       "team": "ANA",
       "draftPoints": 105,
@@ -2099,23 +2099,15 @@
     },
     {
       "id": "8477501",
-      "name": "[object Object] [object Object]",
+      "name": "Valeri Nichushkin",
       "pos": "RW",
       "team": "COL",
       "draftPoints": 105,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476419",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "NYI",
-      "draftPoints": 104,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8480113",
-      "name": "[object Object] [object Object]",
+      "name": "Alex Iafallo",
       "pos": "LW",
       "team": "WPG",
       "draftPoints": 104,
@@ -2123,79 +2115,79 @@
     },
     {
       "id": "8477480",
-      "name": "[object Object] [object Object]",
+      "name": "Eric Comrie",
       "pos": "G",
       "team": "WPG",
       "draftPoints": 104,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476921",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "CAR",
-      "draftPoints": 103,
+      "id": "8476419",
+      "name": "Jean-Gabriel Pageau",
+      "pos": "C",
+      "team": "NYI",
+      "draftPoints": 104,
       "bestSeason": "20242025"
     },
     {
       "id": "8482259",
-      "name": "[object Object] [object Object]",
+      "name": "Bobby McMann",
       "pos": "C",
       "team": "TOR",
       "draftPoints": 103,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476921",
+      "name": "Jordan Martinook",
+      "pos": "LW",
+      "team": "CAR",
+      "draftPoints": 103,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8480796",
-      "name": "[object Object] [object Object]",
+      "name": "Martin Fehérváry",
       "pos": "D",
       "team": "WSH",
       "draftPoints": 103,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478401",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "BOS",
-      "draftPoints": 102,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8475798",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "SJS",
-      "draftPoints": 102,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8480012",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "VAN",
-      "draftPoints": 102,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476392",
-      "name": "[object Object] [object Object]",
+      "name": "Adam Lowry",
       "pos": "C",
       "team": "WPG",
       "draftPoints": 102,
       "bestSeason": "20242025"
     },
     {
-      "id": "8479998",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "LAK",
-      "draftPoints": 101,
+      "id": "8480012",
+      "name": "Elias Pettersson",
+      "pos": "C",
+      "team": "VAN",
+      "draftPoints": 102,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8475798",
+      "name": "Mikael Granlund",
+      "pos": "C",
+      "team": "SJS",
+      "draftPoints": 102,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8478401",
+      "name": "Pavel Zacha",
+      "pos": "C",
+      "team": "BOS",
+      "draftPoints": 102,
       "bestSeason": "20242025"
     },
     {
       "id": "8482110",
-      "name": "[object Object] [object Object]",
+      "name": "Dawson Mercer",
       "pos": "C",
       "team": "NJD",
       "draftPoints": 101,
@@ -2203,39 +2195,47 @@
     },
     {
       "id": "8480188",
-      "name": "[object Object] [object Object]",
+      "name": "Fabian Zetterlund",
       "pos": "LW",
       "team": "SJS",
       "draftPoints": 101,
       "bestSeason": "20242025"
     },
     {
+      "id": "8479998",
+      "name": "Mikey Anderson",
+      "pos": "D",
+      "team": "LAK",
+      "draftPoints": 101,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8473503",
-      "name": "[object Object] [object Object]",
+      "name": "James Reimer",
       "pos": "G",
       "team": "BUF",
       "draftPoints": 100.4,
       "bestSeason": "20242025"
     },
     {
-      "id": "8473533",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "CAR",
-      "draftPoints": 100,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8482809",
-      "name": "[object Object] [object Object]",
+      "name": "Jackson Blake",
       "pos": "RW",
       "team": "CAR",
       "draftPoints": 100,
       "bestSeason": "20242025"
     },
     {
+      "id": "8473533",
+      "name": "Jordan Staal",
+      "pos": "C",
+      "team": "CAR",
+      "draftPoints": 100,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476875",
-      "name": "[object Object] [object Object]",
+      "name": "Mike Matheson",
       "pos": "D",
       "team": "MTL",
       "draftPoints": 100,
@@ -2243,7 +2243,7 @@
     },
     {
       "id": "8477948",
-      "name": "[object Object] [object Object]",
+      "name": "Travis Sanheim",
       "pos": "D",
       "team": "PHI",
       "draftPoints": 100,
@@ -2251,7 +2251,7 @@
     },
     {
       "id": "8477507",
-      "name": "[object Object] [object Object]",
+      "name": "Nikita Zadorov",
       "pos": "D",
       "team": "BOS",
       "draftPoints": 99,
@@ -2259,23 +2259,15 @@
     },
     {
       "id": "8480009",
-      "name": "[object Object] [object Object]",
+      "name": "Eeli Tolvanen",
       "pos": "RW",
       "team": "SEA",
       "draftPoints": 98,
       "bestSeason": "20242025"
     },
     {
-      "id": "8484227",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "SJS",
-      "draftPoints": 98,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8478416",
-      "name": "[object Object] [object Object]",
+      "name": "Erik Cernak",
       "pos": "D",
       "team": "TBL",
       "draftPoints": 98,
@@ -2283,103 +2275,111 @@
     },
     {
       "id": "8480748",
-      "name": "[object Object] [object Object]",
+      "name": "Kiefer Sherwood",
       "pos": "LW",
       "team": "VAN",
       "draftPoints": 98,
       "bestSeason": "20242025"
     },
     {
-      "id": "8476441",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "LAK",
-      "draftPoints": 97,
+      "id": "8484227",
+      "name": "Will Smith",
+      "pos": "C",
+      "team": "SJS",
+      "draftPoints": 98,
       "bestSeason": "20242025"
     },
     {
       "id": "8476869",
-      "name": "[object Object] [object Object]",
+      "name": "Brady Skjei",
       "pos": "D",
       "team": "NSH",
       "draftPoints": 97,
       "bestSeason": "20242025"
     },
     {
+      "id": "8476441",
+      "name": "Joel Edmundson",
+      "pos": "D",
+      "team": "LAK",
+      "draftPoints": 97,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8471724",
-      "name": "[object Object] [object Object]",
+      "name": "Kris Letang",
       "pos": "D",
       "team": "PIT",
       "draftPoints": 97,
       "bestSeason": "20242025"
     },
     {
-      "id": "8483464",
-      "name": "[object Object] [object Object]",
-      "pos": "C",
-      "team": "DET",
-      "draftPoints": 96,
-      "bestSeason": "20242025"
-    },
-    {
-      "id": "8475848",
-      "name": "[object Object] [object Object]",
-      "pos": "RW",
-      "team": "MTL",
-      "draftPoints": 96,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8482109",
-      "name": "[object Object] [object Object]",
+      "name": "Alexis Lafrenière",
       "pos": "LW",
       "team": "NYR",
       "draftPoints": 96,
       "bestSeason": "20242025"
     },
     {
+      "id": "8475848",
+      "name": "Brendan Gallagher",
+      "pos": "RW",
+      "team": "MTL",
+      "draftPoints": 96,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8471215",
-      "name": "[object Object] [object Object]",
+      "name": "Evgeni Malkin",
       "pos": "C",
       "team": "PIT",
       "draftPoints": 96,
       "bestSeason": "20242025"
     },
     {
-      "id": "8475753",
-      "name": "[object Object] [object Object]",
-      "pos": "D",
-      "team": "STL",
-      "draftPoints": 96,
-      "bestSeason": "20242025"
-    },
-    {
       "id": "8476931",
-      "name": "[object Object] [object Object]",
+      "name": "Jake McCabe",
       "pos": "D",
       "team": "TOR",
       "draftPoints": 96,
       "bestSeason": "20242025"
     },
     {
-      "id": "8478109",
-      "name": "[object Object] [object Object]",
-      "pos": "LW",
-      "team": "VGK",
+      "id": "8475753",
+      "name": "Justin Faulk",
+      "pos": "D",
+      "team": "STL",
+      "draftPoints": 96,
+      "bestSeason": "20242025"
+    },
+    {
+      "id": "8483464",
+      "name": "Marco Kasper",
+      "pos": "C",
+      "team": "DET",
       "draftPoints": 96,
       "bestSeason": "20242025"
     },
     {
       "id": "8478911",
-      "name": "[object Object] [object Object]",
+      "name": "Matt Roy",
       "pos": "D",
       "team": "WSH",
       "draftPoints": 96,
       "bestSeason": "20242025"
     },
     {
+      "id": "8478109",
+      "name": "Victor Olofsson",
+      "pos": "LW",
+      "team": "VGK",
+      "draftPoints": 96,
+      "bestSeason": "20242025"
+    },
+    {
       "id": "8476399",
-      "name": "[object Object] [object Object]",
+      "name": "Blake Coleman",
       "pos": "LW",
       "team": "CGY",
       "draftPoints": 95,
@@ -2387,7 +2387,7 @@
     },
     {
       "id": "8470621",
-      "name": "[object Object] [object Object]",
+      "name": "Corey Perry",
       "pos": "RW",
       "team": "EDM",
       "draftPoints": 95,
@@ -2395,7 +2395,7 @@
     },
     {
       "id": "8477919",
-      "name": "[object Object] [object Object]",
+      "name": "Frederick Gaudreau",
       "pos": "C",
       "team": "MIN",
       "draftPoints": 95,
@@ -2403,7 +2403,7 @@
     },
     {
       "id": "8480817",
-      "name": "[object Object] [object Object]",
+      "name": "K'Andre Miller",
       "pos": "D",
       "team": "NYR",
       "draftPoints": 95,
