@@ -80,24 +80,36 @@ body{
 .heroLeft{ display:flex; flex-direction:column; }
 .heroRight{ display:flex; align-items:center; gap: 10px; }
 
+/* ✅ QR capsule: fixed height; QR fills as large as possible without overflow */
 .qrWrap{
-  display:flex; align-items:center; gap: 10px;
+  height: 86px;                 /* “as big as possible” while staying in this box */
+  display:flex;
+  align-items:center;
+  gap: 10px;
   padding: 8px 10px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: rgba(255,255,255,.05);
+  overflow: hidden;             /* guarantees nothing spills out */
 }
 
-/* ✅ QR code 1.5x larger but stays inside box */
+/* QR takes full available height inside the capsule (minus padding) */
 .qrImg{
-  width: 72px;   /* was 48 */
-  height: 72px;  /* was 48 */
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  width: auto;
+  max-width: 86px;              /* stays inside capsule */
   border-radius: 10px;
   background: rgba(255,255,255,.06);
   object-fit: cover;
 }
 
-.qrText{ font-size: 12px; color: var(--muted); font-weight: 800; line-height: 1.2; }
+.qrText{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.2;
+}
 
 .card{
   margin-top: 16px;
@@ -255,7 +267,6 @@ select,input{
 .slotState{ text-align:right; font-weight: 900; color: var(--muted); }
 .slot.open .slotState{ color: rgba(120,255,190,.85); }
 
-/* ✅ roster slot click affordance + selected highlight */
 .slot.selectable{ cursor: pointer; }
 .slot.selectable:hover{ background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.16); }
 .slot.selected{
