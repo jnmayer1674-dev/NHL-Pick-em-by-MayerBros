@@ -6,145 +6,97 @@
   <title>NHL Pick’em by MayerBros</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
   <div class="page">
-
-    <header class="top">
-      <div class="brand">
-        <h1 class="title">NHL Pick’em by MayerBros</h1>
-        <div class="subtitle">Draft by team • Blind draft </div>
-      </div>
+    <header class="hero">
+      <div class="hero__title">NHL Pick’em by MayerBros</div>
+      <div class="hero__subtitle">Draft by team • Blind draft</div>
     </header>
 
-    <!-- MODE SELECT -->
-    <section id="modeScreen" class="card mode-card">
-      <h2 class="card-title">Choose Game Mode</h2>
-      <div class="hint">Pick one. You can change modes later.</div>
-
-      <div class="mode-buttons">
-        <button id="startSingle" class="btn btn-primary" type="button">Start Single Player</button>
-        <button id="startVersus" class="btn" type="button">Start 2 Player Versus</button>
+    <section class="topbar card">
+      <div class="topbar__left">
+        <div id="statusLine" class="statusLine">Loading…</div>
+        <div id="subStatusLine" class="subStatusLine"></div>
       </div>
-    </section>
 
-    <!-- GAME UI -->
-    <section id="gameScreen" class="hidden">
-      <div class="card topbar">
-        <div class="top-actions">
-          <div class="status-left">
-            <div id="statusLine" class="status-line">—</div>
-            <div id="turnLine" class="status-line subtle">—</div>
-            <div class="status-line subtle">Blind draft: player values hidden.</div>
-          </div>
+      <div class="topbar__right">
+        <button id="btnMode" class="btn btn--ghost">Change Mode</button>
+        <button id="btnNew" class="btn">New Game</button>
 
-          <div class="status-right">
-            <button id="btnChangeMode" class="btn" type="button">Change Mode</button>
-            <button id="btnNewGame" class="btn btn-primary" type="button">New Game</button>
-
-            <div class="team-badge">
-              <img id="teamLogo" class="team-logo" alt="" />
-              <div class="team-meta">
-                <div id="teamName" class="team-name">—</div>
-                <div id="timer" class="timer">30s</div>
-              </div>
-            </div>
+        <div class="teamBadge">
+          <img id="teamLogo" class="teamBadge__logo" alt="" />
+          <div class="teamBadge__meta">
+            <div id="teamAbbrev" class="teamBadge__abbr">—</div>
+            <div id="timer" class="teamBadge__timer">30s</div>
           </div>
         </div>
       </div>
-
-      <main class="grid">
-
-        <section class="card">
-          <div class="card-head">
-            <h2 class="card-title">2024–2025 Fantasy Points</h2>
-            <div class="hint">Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.</div>
-          </div>
-
-          <div class="filters">
-            <label class="label">
-              Position:
-              <select id="posFilter" class="select">
-                <option value="All" selected>All</option>
-                <option value="C">C</option>
-                <option value="LW">LW</option>
-                <option value="RW">RW</option>
-                <option value="D">D</option>
-                <option value="G">G</option>
-              </select>
-            </label>
-
-            <label class="label">
-              Search:
-              <input id="searchInput" class="input" type="text" placeholder="type a name..." />
-            </label>
-
-          </div>
-
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Player</th>
-                  <th>Pos</th>
-                  <th>Team</th>
-                  <th class="right pts-col">Pts</th>
-                </tr>
-              </thead>
-              <tbody id="playersBody"></tbody>
-            </table>
-          </div>
-
-          <div id="emptyMsg" class="empty hidden">
-            No players loaded yet. Make sure players.json is in the data folder.
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-head">
-            <h2 class="card-title">Rosters</h2>
-          </div>
-
-          <div id="rostersOne" class="rosters hidden">
-            <div class="roster">
-              <div class="roster-head">
-                <div class="roster-title">Player 1</div>
-                <div class="roster-score">
-                  <span id="p1Score">Score: 0</span><br/>
-                  <span id="singleHighScore" class="high-score">High Score: 0</span><br/>
-                  <button id="resetHighScore" class="btn btn-primary mini">Reset High Score</button>
-                </div>
-              </div>
-              <div id="p1Slots" class="slots"></div>
-            </div>
-          </div>
-
-          <div id="rostersTwo" class="rosters hidden">
-            <div class="roster">
-              <div class="roster-head">
-                <div class="roster-title">Player 1</div>
-                <div id="p1Score2" class="roster-score">Score: 0</div>
-              </div>
-              <div id="p1Slots2" class="slots"></div>
-            </div>
-
-            <div class="roster">
-              <div class="roster-head">
-                <div class="roster-title">Player 2</div>
-                <div id="p2Score" class="roster-score">Score: 0</div>
-              </div>
-              <div id="p2Slots" class="slots"></div>
-            </div>
-          </div>
-
-          <div class="slots-note">
-            FLEX = C / LW / RW ONLY!!!
-          </div>
-        </section>
-
-      </main>
     </section>
 
+    <main class="grid">
+      <section class="card">
+        <div class="card__title">2024–2025 Fantasy Points</div>
+        <div class="card__hint">Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.</div>
+
+        <div class="controls">
+          <label class="control">
+            <span>Position:</span>
+            <select id="posFilter">
+              <option value="ALL">All</option>
+              <option value="C">C</option>
+              <option value="LW">LW</option>
+              <option value="RW">RW</option>
+              <option value="D">D</option>
+              <option value="G">G</option>
+            </select>
+          </label>
+
+          <label class="control control--grow">
+            <span>Search:</span>
+            <input id="search" type="search" placeholder="type a name…" />
+          </label>
+
+          <div class="dataStamp" id="dataStamp">Data: —</div>
+        </div>
+
+        <div class="tableWrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>PLAYER</th>
+                <th class="colSmall">POS</th>
+                <th class="colSmall">TEAM</th>
+              </tr>
+            </thead>
+            <tbody id="playersTbody">
+              <tr><td colspan="3" class="muted">Loading players…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="errorBox" class="errorBox hidden"></div>
+      </section>
+
+      <section class="card">
+        <div class="rostersHeader">
+          <div class="card__title">Rosters</div>
+          <div id="singleExtras" class="singleExtras hidden">
+            <div class="hsLine">
+              <div><span class="muted">High Score:</span> <span id="highScore">0</span></div>
+              <button id="btnResetHS" class="btn btn--ghost btn--small">Reset High Score</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="rostersWrap" class="rostersWrap">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="slotsLine" id="slotsLine">
+          Slots: C, LW, RW, D, D, G, FLEX, FLEX — FLEX accepts C/LW/RW only.
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="app.js"></script>
