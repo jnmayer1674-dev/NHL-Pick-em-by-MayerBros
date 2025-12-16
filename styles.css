@@ -1,125 +1,241 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NHL Pick’em by MayerBros</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="page">
-    <div class="card headerCard">
-      <div class="headerLeft">
-        <h1 class="title">NHL Pick’em by MayerBros</h1>
-        <div class="subtitle">Draft by team</div>
-      </div>
+/* =========================
+   RESET / BASE
+========================= */
+* {
+  box-sizing: border-box;
+}
 
-      <div class="qrBox">
-        <img class="qrImg" src="assets/qr.png" alt="QR code">
-        <div class="qrText">Scan to open<br>on phone or tablet</div>
-      </div>
-    </div>
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  background: radial-gradient(1200px 600px at 20% 0%, #3b2b63 0%, #0b0f1a 55%, #06080f 100%);
+  color: #e8e9ef;
+}
 
-    <div class="card statusCard">
-      <div class="statusLeft">
-        <div id="statusLine" class="statusLine">Loading…</div>
-        <div id="subStatusLine" class="subStatusLine"></div>
-      </div>
+/* =========================
+   PAGE WRAPPER
+========================= */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+}
 
-      <div class="statusRight">
-        <button id="btnMode" class="btn">Change Mode</button>
-        <button id="btnNew" class="btn">New Game</button>
+/* =========================
+   CARDS
+========================= */
+.card {
+  background: linear-gradient(180deg, rgba(28,30,48,.95), rgba(18,20,36,.95));
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
 
-        <div class="teamBadge">
-          <img id="teamLogo" class="teamLogo" alt="Team logo">
-          <div class="teamInfo">
-            <div id="teamAbbrev" class="teamAbbrev">—</div>
-            <div id="timer" class="timer">30s</div>
-          </div>
-        </div>
-      </div>
-    </div>
+/* =========================
+   HEADER
+========================= */
+.headerCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    <div class="grid">
-      <div class="card playersCard">
-        <div class="cardTitle">2024–2025 Fantasy Points</div>
-        <div class="cardHint">
-          Draft options: (A) Choose Draft Position then click a player, or (B) Leave Draft Position = AUTO and click a player to auto-fill.
-        </div>
+.headerLeft .title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
 
-        <div class="controlsRow">
-          <div class="control">
-            <div class="label">Draft Position:</div>
-            <select id="draftPos" class="select">
-              <option value="AUTO">AUTO</option>
-              <option value="C">C</option>
-              <option value="LW">LW</option>
-              <option value="RW">RW</option>
-              <option value="D">D</option>
-              <option value="G">G</option>
-              <option value="FLEX">FLEX</option>
-            </select>
-          </div>
+.subtitle {
+  opacity: .7;
+  margin-top: 4px;
+  font-size: 13px;
+}
 
-          <div class="control">
-            <div class="label">Show Position:</div>
-            <select id="posFilter" class="select">
-              <option value="ALL">All</option>
-              <option value="C">C</option>
-              <option value="LW">LW</option>
-              <option value="RW">RW</option>
-              <option value="D">D</option>
-              <option value="G">G</option>
-            </select>
-          </div>
+/* =========================
+   QR
+========================= */
+.qrBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-          <div class="control grow">
-            <div class="label">Search:</div>
-            <input id="search" class="input" placeholder="type a name..." />
-          </div>
+.qrImg {
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+}
 
-          <div class="stamp">
-            <span id="dataStamp">Data —</span>
-          </div>
-        </div>
+.qrText {
+  font-size: 12px;
+  opacity: .75;
+  max-width: 110px;
+}
 
-        <div class="tableWrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>PLAYER</th>
-                <th class="colSmall">POS</th>
-                <th class="colSmall">TEAM</th>
-              </tr>
-            </thead>
-            <tbody id="playersTbody">
-              <tr><td colspan="3" class="muted">Loading players…</td></tr>
-            </tbody>
-          </table>
-        </div>
+/* =========================
+   MODE SELECT MODAL
+========================= */
+.mode-select {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
 
-        <div id="errorBox" class="errorBox hidden"></div>
-      </div>
+.modalCard {
+  width: 360px;
+  text-align: center;
+}
 
-      <div class="card rostersCard">
-        <div class="rostersHeader">
-          <div class="cardTitle">Rosters</div>
+.modalTitle {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
 
-          <div id="singleExtras" class="singleExtras">
-            <div class="hsLabel">High Score: <span id="highScore">0</span></div>
-            <button id="btnResetHS" class="btn btnSmall">Reset High Score</button>
-          </div>
-        </div>
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
 
-        <div id="rostersWrap" class="rostersWrap"></div>
+button {
+  appearance: none;
+  border: none;
+  background: linear-gradient(180deg, #5b6cff, #4b56e5);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-weight: 600;
+}
 
-        <div class="slotsLine">
-          Slots: C, LW, RW, D, D, G, FLEX, FLEX — FLEX accepts C/LW/RW only.
-        </div>
-      </div>
-    </div>
-  </div>
+button.secondary {
+  background: rgba(255,255,255,.1);
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+/* =========================
+   STATUS BAR
+========================= */
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusText {
+  font-size: 14px;
+  opacity: .85;
+}
+
+/* =========================
+   MAIN GRID
+========================= */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 18px;
+}
+
+/* =========================
+   PLAYER TABLE
+========================= */
+.tableWrap {
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-size: 12px;
+  opacity: .6;
+  padding-bottom: 6px;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,.05);
+}
+
+td {
+  padding: 8px 6px;
+  font-size: 14px;
+}
+
+/* =========================
+   ROSTERS
+========================= */
+.rosters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.rosterCard {
+  padding: 12px;
+}
+
+.rosterTitle {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.rosterRow {
+  display: grid;
+  grid-template-columns: 38px 1fr 48px;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.rosterRow:last-child {
+  border-bottom: none;
+}
+
+.slot {
+  font-weight: 700;
+}
+
+.open {
+  color: #4dffb0;
+}
+
+.filled {
+  opacity: .85;
+}
+
+/* =========================
+   WINNER HIGHLIGHT
+========================= */
+.rosterCard.winner {
+  outline: 2px solid #6cffb5;
+  box-shadow: 0 0 24px rgba(108,255,181,.35);
+}
+
+/* =========================
+   CONTROLS
+========================= */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+select, input {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
