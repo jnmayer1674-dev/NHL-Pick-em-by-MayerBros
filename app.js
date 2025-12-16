@@ -238,7 +238,7 @@ function boot() {
     if (currentPickIndex >= totalPicks) {
       elTimer.textContent = "0s";
       updateScoresAndHighScore();
-      elStatus.textContent = "Game complete.";
+      elStatus.textContent = "Game complete. (Round 8 of 8)";
       elSubStatus.textContent = (game.playersCount === 1)
         ? `Final: P1 ${formatScore(game.scores[1])}`
         : `Final: P1 ${formatScore(game.scores[1])} — P2 ${formatScore(game.scores[2])}`;
@@ -252,11 +252,20 @@ function boot() {
     selectedSlotKeyByPlayer[game.onClock] = null;
     autoOverrideActive = false;
 
-    if (remainingTeams.length === 0) remainingTeams = shuffle(uniqueTeams(availablePlayers));
-    currentTeam = remainingTeams.shift() || currentTeam || "—";
+    // ✅ TEAM SHOULD CHANGE ONLY ON ROUND START (in 2-player, every 2 picks)
+    const isRoundStart = (game.playersCount === 1) || (currentPickIndex % game.playersCount === 0);
+    if (isRoundStart) {
+      if (remainingTeams.length === 0) remainingTeams = shuffle(uniqueTeams(availablePlayers));
+      currentTeam = remainingTeams.shift() || currentTeam || "—";
+    }
 
     updateTeamBadge();
-    elStatus.textContent = `Mode: ${gameMode === MODE_SINGLE ? "Single" : "Versus"} • Pick ${currentPickIndex + 1} • Team: ${currentTeam}`;
+
+    // ✅ Round X of 8
+    const roundNum = Math.floor(currentPickIndex / game.playersCount) + 1; // 1..8
+    elStatus.textContent =
+      `Mode: ${gameMode === MODE_SINGLE ? "Single" : "Versus"} • Round ${roundNum} of 8 • Pick ${currentPickIndex + 1} • Team: ${currentTeam}`;
+
     elSubStatus.textContent = `On the clock: Player ${game.onClock}. Choose Draft Position then click a player.`;
 
     renderRosters();
@@ -288,7 +297,6 @@ function boot() {
 
     if (!legal.length) {
       resetTempPosFilterIfNeeded();
-      // ✅ also reset Draft Position after a “no pick” timer event (keeps UI clean)
       elDraftPos.value = "AUTO";
       autoOverrideActive = false;
 
@@ -315,11 +323,10 @@ function boot() {
 
     selectedSlotKeyByPlayer[owner] = null;
 
-    // ✅ ALWAYS reset Draft Position to AUTO after any successful pick
+    // ALWAYS reset Draft Position to AUTO after any successful pick
     elDraftPos.value = "AUTO";
     autoOverrideActive = false;
 
-    // reset Show Position back to ALL if roster click temp override was used
     resetTempPosFilterIfNeeded();
 
     currentPickIndex++;
@@ -537,12 +544,12 @@ function boot() {
   }
 
   function getHighScore() {
-    const v = Number(localStorage.getItem("nhl_pickem_highscore_v8") || "0");
+    const v = Number(localStorage.getItem(STORAGE_KEY_HS) || "0");
     return Number.isFinite(v) ? v : 0;
   }
 
   function setHighScore(val) {
-    localStorage.setItem("nhl_pickem_highscore_v8", String(val || 0));
+    localStorage.setItem(STORAGE_KEY_HS, String(val || 0));
   }
 
   function makeEmptyRoster() {
