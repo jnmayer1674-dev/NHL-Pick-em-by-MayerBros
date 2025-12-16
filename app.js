@@ -1,164 +1,137 @@
-// ==== NHL Pick'em App.js ====
-
-let players = [];
-let gameMode = null; // "single" or "versus"
-let currentPlayer = 1;
-let p1Score = 0;
-let p2Score = 0;
-let highScore = parseInt(localStorage.getItem("nhlHighScore")) || 0;
-
-// DOM elements
+// === ELEMENT SELECTORS ===
 const modeScreen = document.getElementById("modeScreen");
-const gameScreen = document.getElementById("gameScreen");
 const startSingle = document.getElementById("startSingle");
 const startVersus = document.getElementById("startVersus");
+const gameScreen = document.getElementById("gameScreen");
+
 const btnChangeMode = document.getElementById("btnChangeMode");
 const btnNewGame = document.getElementById("btnNewGame");
 const resetHighScoreBtn = document.getElementById("resetHighScore");
-const statusLine = document.getElementById("statusLine");
-const turnLine = document.getElementById("turnLine");
+
 const playersBody = document.getElementById("playersBody");
 const posFilter = document.getElementById("posFilter");
 const searchInput = document.getElementById("searchInput");
+const emptyMsg = document.getElementById("emptyMsg");
 
 const rostersOne = document.getElementById("rostersOne");
 const rostersTwo = document.getElementById("rostersTwo");
-const p1ScoreEl = document.getElementById("p1Score");
-const singleHighScoreEl = document.getElementById("singleHighScore");
-const p1Score2El = document.getElementById("p1Score2");
-const p2ScoreEl = document.getElementById("p2Score");
 
-// Load players
+const p1Score = document.getElementById("p1Score");
+const singleHighScore = document.getElementById("singleHighScore");
+const p1Score2 = document.getElementById("p1Score2");
+const p2Score = document.getElementById("p2Score");
+
+const teamLogo = document.getElementById("teamLogo");
+const teamName = document.getElementById("teamName");
+const statusLine = document.getElementById("statusLine");
+const turnLine = document.getElementById("turnLine");
+
+// === GAME STATE ===
+let allPlayers = [];
+let filteredPlayers = [];
+let gameMode = null; // "single" or "versus"
+let currentTurn = 1;
+let player1Score = 0;
+let player2Score = 0;
+let highScore = parseInt(localStorage.getItem("nhlHighScore") || "0");
+
+// === FETCH PLAYERS ===
 async function loadPlayers() {
   try {
-    const res = await fetch("data/players.json", { cache: "no-store" });
-    players = await res.json();
+    const res = await fetch("data/players.json"); // <-- updated path
+    if (!res.ok) throw new Error("Network error");
+    const data = await res.json();
+    allPlayers = data;
+    filteredPlayers = allPlayers;
     renderPlayers();
   } catch (err) {
-    playersBody.innerHTML = `<tr><td colspan="4" style="color:red;">Error loading players. Make sure you're running on a local server.</td></tr>`;
     console.error(err);
+    emptyMsg.classList.remove("hidden");
+    emptyMsg.textContent = "Error loading players. Make sure the file exists in data/ folder.";
   }
 }
 
-// Render player table
+// === RENDER PLAYERS ===
 function renderPlayers() {
-  const pos = posFilter.value;
-  const search = searchInput.value.toLowerCase();
-
-  const filtered = players.filter(p => {
-    return (pos === "All" || p.position === pos) &&
-           (!search || p.name.toLowerCase().includes(search));
-  });
-
   playersBody.innerHTML = "";
-  filtered.forEach(p => {
+  filteredPlayers.forEach(player => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="slot-name">${p.name}</td>
-      <td>${p.position}</td>
-      <td>${p.team}</td>
-      <td class="right pts-col">${p.points}</td>
+      <td>${player.name}</td>
+      <td>${player.pos}</td>
+      <td>${player.team}</td>
+      <td class="right pts-col">${player.pts}</td>
     `;
-    tr.addEventListener("click", () => pickPlayer(p));
     playersBody.appendChild(tr);
   });
 }
 
-// Handle player pick
-function pickPlayer(player) {
+// === FILTER PLAYERS ===
+function applyFilters() {
+  const pos = posFilter.value;
+  const search = searchInput.value.toLowerCase();
+  filteredPlayers = allPlayers.filter(p => 
+    (pos === "All" || p.pos === pos) &&
+    p.name.toLowerCase().includes(search)
+  );
+  renderPlayers();
+}
+
+// === GAME MODE BUTTONS ===
+startSingle.addEventListener("click", () => startGame("single"));
+startVersus.addEventListener("click", () => startGame("versus"));
+
+function startGame(mode) {
+  gameMode = mode;
+  modeScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+  rostersOne.classList.toggle("hidden", mode !== "single");
+  rostersTwo.classList.toggle("hidden", mode !== "versus");
+  resetGame();
+  updateHighScoreUI();
+}
+
+// === NEW GAME ===
+btnNewGame.addEventListener("click", resetGame);
+
+function resetGame() {
+  player1Score = 0;
+  player2Score = 0;
+  currentTurn = 1;
+  p1Score.textContent = `Score: ${player1Score}`;
+  p1Score2.textContent = `Score: ${player1Score}`;
+  p2Score.textContent = `Score: ${player2Score}`;
+  statusLine.textContent = "New game started.";
+  turnLine.textContent = gameMode === "versus" ? "Player 1's turn" : "";
+}
+
+// === HIGH SCORE ===
+function updateHighScoreUI() {
   if (gameMode === "single") {
-    const slot = document.createElement("div");
-    slot.textContent = player.name + " (" + player.position + ")";
-    rostersOne.querySelector("#p1Slots").appendChild(slot);
-    p1Score += player.points;
-    p1ScoreEl.innerHTML = `Score: ${p1Score}<br/><span class="high-score">High Score: ${highScore}</span>`;
-    updateHighScore();
-  } else if (gameMode === "versus") {
-    const rosterEl = currentPlayer === 1 ? rostersTwo.querySelector("#p1Slots2") : rostersTwo.querySelector("#p2Slots");
-    rosterEl.appendChild(document.createElement("div")).textContent = player.name + " (" + player.position + ")";
-    if (currentPlayer === 1) {
-      p1Score += player.points;
-      p1Score2El.textContent = `Score: ${p1Score}`;
-      currentPlayer = 2;
-    } else {
-      p2Score += player.points;
-      p2ScoreEl.textContent = `Score: ${p2Score}`;
-      currentPlayer = 1;
-    }
+    singleHighScore.textContent = `High Score: ${highScore}`;
+    resetHighScoreBtn.classList.remove("hidden");
+  } else {
+    singleHighScore.textContent = "";
+    resetHighScoreBtn.classList.add("hidden");
   }
 }
 
-// Update high score in localStorage
-function updateHighScore() {
-  if (p1Score > highScore) {
-    highScore = p1Score;
-    localStorage.setItem("nhlHighScore", highScore);
-    singleHighScoreEl.textContent = `High Score: ${highScore}`;
-  }
-}
-
-// Reset high score
-function resetHighScore() {
+resetHighScoreBtn.addEventListener("click", () => {
   highScore = 0;
-  localStorage.removeItem("nhlHighScore");
-  singleHighScoreEl.textContent = `High Score: ${highScore}`;
-}
-
-// Start single player
-startSingle.addEventListener("click", () => {
-  gameMode = "single";
-  modeScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
-  rostersOne.classList.remove("hidden");
-  rostersTwo.classList.add("hidden");
-  currentPlayer = 1;
-  p1Score = 0;
-  p1ScoreEl.textContent = `Score: ${p1Score}<br/><span class="high-score">High Score: ${highScore}</span>`;
-  renderPlayers();
+  localStorage.setItem("nhlHighScore", highScore);
+  updateHighScoreUI();
 });
 
-// Start versus mode
-startVersus.addEventListener("click", () => {
-  gameMode = "versus";
-  modeScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
-  rostersOne.classList.add("hidden");
-  rostersTwo.classList.remove("hidden");
-  currentPlayer = 1;
-  p1Score = p2Score = 0;
-  p1Score2El.textContent = `Score: ${p1Score}`;
-  p2ScoreEl.textContent = `Score: ${p2Score}`;
-  renderPlayers();
-});
-
-// Change mode
+// === CHANGE MODE ===
 btnChangeMode.addEventListener("click", () => {
-  gameMode = null;
-  modeScreen.classList.remove("hidden");
   gameScreen.classList.add("hidden");
+  modeScreen.classList.remove("hidden");
 });
 
-// New game
-btnNewGame.addEventListener("click", () => {
-  // Clear rosters
-  rostersOne.querySelector("#p1Slots").innerHTML = "";
-  rostersTwo.querySelector("#p1Slots2").innerHTML = "";
-  rostersTwo.querySelector("#p2Slots").innerHTML = "";
-  p1Score = p2Score = 0;
-  if (gameMode === "single") {
-    p1ScoreEl.innerHTML = `Score: ${p1Score}<br/><span class="high-score">High Score: ${highScore}</span>`;
-  } else if (gameMode === "versus") {
-    p1Score2El.textContent = `Score: ${p1Score}`;
-    p2ScoreEl.textContent = `Score: ${p2Score}`;
-  }
-});
+// === FILTER EVENTS ===
+posFilter.addEventListener("change", applyFilters);
+searchInput.addEventListener("input", applyFilters);
 
-// Filters
-posFilter.addEventListener("change", renderPlayers);
-searchInput.addEventListener("input", renderPlayers);
-
-// Reset high score
-resetHighScoreBtn.addEventListener("click", resetHighScore);
-
-// Initial load
+// === INIT ===
 loadPlayers();
+updateHighScoreUI();
