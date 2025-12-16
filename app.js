@@ -33,7 +33,6 @@ function boot() {
   const MODE_SINGLE = "single";
   const MODE_TWO = "two";
 
-  // Slot definitions (keys are internal, label is what shows)
   const SLOTS = [
     { key: "C", label: "C", accepts: ["C"], draftPos: "C" },
     { key: "LW", label: "LW", accepts: ["LW"], draftPos: "LW" },
@@ -45,7 +44,6 @@ function boot() {
     { key: "FLEX2", label: "FLEX", accepts: ["C", "LW", "RW"], draftPos: "FLEX" },
   ];
 
-  // Logos: allow alternate file names if your folder uses different naming
   const LOGO_MAP = { LAK: "LA", NJD: "NJ", TBL: "TB", SJS: "SJ" };
 
   // State
@@ -60,8 +58,13 @@ function boot() {
   let timerId = null;
   let timeLeft = 30;
 
-  // If user clicks a roster slot, we "highlight" it for the active player
+  // Clicked slot per player (for highlighting + filtering)
   let selectedSlotKeyByPlayer = { 1: null, 2: null };
+
+  // ✅ AUTO temporary override flag:
+  // if Draft Position was AUTO when user clicked a roster slot,
+  // we set overrideActive=true and revert Draft Position back to AUTO after the pick.
+  let autoOverrideActive = false;
 
   const game = {
     playersCount: 1,
@@ -94,7 +97,8 @@ function boot() {
   elNewBtn.addEventListener("click", () => startGame(gameMode));
 
   elDraftPos.addEventListener("change", () => {
-    // If user changes dropdown, clear the clicked-slot highlight for that player
+    // manual change cancels any one-pick AUTO override
+    autoOverrideActive = false;
     selectedSlotKeyByPlayer[game.onClock] = null;
     renderRosters();
     renderPlayersTable();
@@ -129,7 +133,6 @@ function boot() {
       elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">Could not load players.</td></tr>`;
     });
 
-  // Data load
   async function loadPlayers() {
     const url = new URL("data/players.json", window.location.href);
     url.searchParams.set("v", String(Date.now())); // bust cache
@@ -169,7 +172,6 @@ function boot() {
     };
   }
 
-  // Game flow
   function startGame(mode) {
     stopTimer();
     hideError();
@@ -191,6 +193,7 @@ function boot() {
 
     selectedSlotKeyByPlayer[1] = null;
     selectedSlotKeyByPlayer[2] = null;
+    autoOverrideActive = false;
 
     currentPickIndex = 0;
     game.onClock = 1;
@@ -225,7 +228,10 @@ function boot() {
     }
 
     game.onClock = pickOwner(currentPickIndex);
-    selectedSlotKeyByPlayer[game.onClock] = null; // clear selection each pick
+
+    // new pick resets slot selection + one-pick override flag
+    selectedSlotKeyByPlayer[game.onClock] = null;
+    autoOverrideActive = false;
 
     if (remainingTeams.length === 0) remainingTeams = shuffle(uniqueTeams(availablePlayers));
     currentTeam = remainingTeams.shift() || currentTeam || "—";
@@ -249,7 +255,6 @@ function boot() {
     }, 1000);
   }
 
-  // Timer auto-pick: first open slot + random legal player for that slot
   function autoPickOnTimer() {
     const owner = game.onClock;
     const roster = game.rosters[owner];
@@ -280,14 +285,19 @@ function boot() {
     game.rosters[owner][slotKey] = player;
     game.scores[owner] = calcScore(owner);
 
-    // after a successful pick, clear selected slot
+    // clear selected slot after pick
     selectedSlotKeyByPlayer[owner] = null;
+
+    // ✅ if we were in AUTO when slot was clicked, revert dropdown to AUTO now
+    if (autoOverrideActive) {
+      elDraftPos.value = "AUTO";
+      autoOverrideActive = false;
+    }
 
     currentPickIndex++;
     nextPick();
   }
 
-  // Snake order in 2P mode (block per roster round)
   function pickOwner(pickIndex) {
     if (game.playersCount === 1) return 1;
     const block = Math.floor(pickIndex / SLOTS.length);
@@ -295,7 +305,6 @@ function boot() {
     return (pickIndex % 2 === 0) ? 2 : 1;
   }
 
-  // Determine slot based on player + dropdown; if dropdown AUTO, use first fit
   function resolveSlotForPlayer(owner, player, draftPos) {
     const r = game.rosters[owner];
 
@@ -319,39 +328,33 @@ function boot() {
     return null;
   }
 
-  // When user clicks a roster slot, set Draft Position + filter + highlight
   function onRosterSlotClick(owner, slotKey) {
-    if (owner !== game.onClock) return; // only the on-clock player can select
+    if (owner !== game.onClock) return;
     const r = game.rosters[owner];
-    if (r[slotKey]) return; // filled slots do nothing
+    if (r[slotKey]) return;
 
     const slot = SLOTS.find(s => s.key === slotKey);
     if (!slot) return;
 
-    // Set dropdown to corresponding draftPos (C/LW/RW/D/G/FLEX)
+    // ✅ If Draft Position is AUTO at the moment of click, we activate one-pick override
+    autoOverrideActive = (elDraftPos.value === "AUTO");
+
+    // Set dropdown to match clicked slot
     elDraftPos.value = slot.draftPos;
 
-    // Also set the visible position filter to match (except FLEX)
-    if (slot.draftPos === "FLEX") {
-      elPosFilter.value = "ALL";
-    } else {
-      elPosFilter.value = slot.draftPos;
-    }
+    // set view filter (FLEX doesn't force position filter)
+    if (slot.draftPos === "FLEX") elPosFilter.value = "ALL";
+    else elPosFilter.value = slot.draftPos;
 
-    // highlight selection
     selectedSlotKeyByPlayer[owner] = slotKey;
-
-    // reset search (optional but matches old behavior better)
     elSearch.value = "";
 
     renderRosters();
     renderPlayersTable();
   }
 
-  // Render player list (legal players for current team + selected draft rules)
   function renderPlayersTable() {
     let list = availablePlayers;
-
     if (currentTeam && currentTeam !== "—") list = list.filter(p => p.team === currentTeam);
 
     const pf = elPosFilter.value;
@@ -359,8 +362,7 @@ function boot() {
 
     const owner = game.onClock;
 
-    // If a roster slot is selected, force draftPos to that slot's draftPos,
-    // so the list matches the clicked roster slot.
+    // If a roster slot is selected, force eligibility to that slot’s draftPos
     let dp = elDraftPos.value || "AUTO";
     const selectedSlotKey = selectedSlotKeyByPlayer[owner];
     if (selectedSlotKey) {
@@ -396,7 +398,7 @@ function boot() {
 
         const owner = game.onClock;
 
-        // If they clicked a roster slot, try to place exactly there first.
+        // If they clicked a roster slot, place there first
         const selectedSlotKey = selectedSlotKeyByPlayer[owner];
         if (selectedSlotKey) {
           const slot = SLOTS.find(s => s.key === selectedSlotKey);
@@ -406,7 +408,7 @@ function boot() {
           }
         }
 
-        // Otherwise use dropdown behavior
+        // else normal dropdown behavior
         const slotKey = resolveSlotForPlayer(owner, player, elDraftPos.value || "AUTO");
         if (!slotKey) return;
         applyPick(player, owner, slotKey);
@@ -414,7 +416,6 @@ function boot() {
     });
   }
 
-  // Render rosters
   function renderRosters() {
     elRostersWrap.classList.toggle("two", game.playersCount === 2);
 
@@ -422,7 +423,6 @@ function boot() {
     for (let i = 1; i <= game.playersCount; i++) cards.push(renderRosterCard(i));
     elRostersWrap.innerHTML = cards.join("");
 
-    // Attach click handlers to slots
     for (let owner = 1; owner <= game.playersCount; owner++) {
       const card = elRostersWrap.querySelector(`[data-owner="${owner}"]`);
       if (!card) continue;
@@ -478,7 +478,6 @@ function boot() {
     `;
   }
 
-  // Team badge logo (never blanks at end)
   function updateTeamBadge() {
     elTeamAbbrev.textContent = currentTeam || "—";
     if (!currentTeam || currentTeam === "—") return;
@@ -494,7 +493,6 @@ function boot() {
     elTeamLogo.src = src;
   }
 
-  // High score (single player only)
   function updateScoresAndHighScore() {
     game.scores[1] = calcScore(1);
     game.scores[2] = calcScore(2);
@@ -519,7 +517,6 @@ function boot() {
     localStorage.setItem(STORAGE_KEY_HS, String(val || 0));
   }
 
-  // Helpers
   function makeEmptyRoster() {
     const r = {};
     SLOTS.forEach(s => r[s.key] = null);
