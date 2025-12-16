@@ -489,4 +489,10 @@ function hookUI(){
   }
 })();
 
+function updateSingleHighScoreUI() {
+  const el = document.getElementById("singleHighScore");
+  if (!el) return;
+  el.textContent = `High Score: ${singlePlayerHighScore}`;
+}
+
 
