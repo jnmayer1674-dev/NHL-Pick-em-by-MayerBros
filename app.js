@@ -298,6 +298,12 @@ function finishGame(){
     let msg = `Final — Player 1: ${score1} vs Player 2: ${score2}. `;
     msg += score1>score2 ? "Player 1 wins." : score2>score1 ? "Player 2 wins." : "Tie game.";
     el.winnerLine.textContent = msg;
+    function updateSingleHighScoreUI() {
+  const el = document.getElementById("singleHighScore");
+  if (!el) return;
+  el.textContent = `High Score: ${singlePlayerHighScore}`;
+}
+
   }
 }
 
@@ -494,5 +500,6 @@ function updateSingleHighScoreUI() {
   if (!el) return;
   el.textContent = `High Score: ${singlePlayerHighScore}`;
 }
+
 
 
