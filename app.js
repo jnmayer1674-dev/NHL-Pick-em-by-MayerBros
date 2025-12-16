@@ -1,19 +1,18 @@
-/* NHL Pick’em by MayerBros — FULL CLEAN VERSION
-   - Main Mode Select screen
-   - Player must choose OPEN slot (no auto-slot) during normal play
-   - Timer hits 0 => auto-select FIRST OPEN slot and pick a random legal player
-   - Team-per-pick, no repeats until exhausted
-   - High score persists ONLY in Single mode (with Reset)
-   - NO "Blind draft: player values hidden." text anywhere
-   - Logo filename mapping matches your assets/logos filenames
+/* NHL Pick’em by MayerBros — TWO-PAGE VERSION (index.html -> game.html)
+   Draft behavior:
+   - Draft Position dropdown:
+       * AUTO = click any player, auto-fills first open matching slot (uses FLEX for C/LW/RW if needed)
+       * C/LW/RW/D/G/FLEX = list filters to eligible + click player fills the first open slot of that type
+   - Timer hits 0 => auto-pick (auto-select first open slot and random legal player)
+   - High score persists ONLY in single mode, never shown in 2P
+   - Logos mapped to your filenames (LA.png, NJ.png, TB.png, SJ.png)
 */
 
 (function () {
-  // ---------- DOM ----------
-  const elModeScreen = document.getElementById("modeScreen");
-  const elStartSingle = document.getElementById("btnStartSingle");
-  const elStartTwo = document.getElementById("btnStartTwo");
+  // Guard: only run on game page
+  if (!document.getElementById("playersTbody")) return;
 
+  // ---------- DOM ----------
   const elStatus = document.getElementById("statusLine");
   const elSubStatus = document.getElementById("subStatusLine");
   const elModeBtn = document.getElementById("btnMode");
@@ -23,6 +22,7 @@
   const elTeamAbbrev = document.getElementById("teamAbbrev");
   const elTimer = document.getElementById("timer");
 
+  const elDraftPos = document.getElementById("draftPos");
   const elPosFilter = document.getElementById("posFilter");
   const elSearch = document.getElementById("search");
   const elPlayersTbody = document.getElementById("playersTbody");
@@ -35,7 +35,7 @@
   const elResetHS = document.getElementById("btnResetHS");
 
   // ---------- CONSTANTS ----------
-  const STORAGE_KEY_HS = "nhl_pickem_highscore_v3";
+  const STORAGE_KEY_HS = "nhl_pickem_highscore_v4";
   const MODE_SINGLE = "single";
   const MODE_TWO = "two";
 
@@ -50,8 +50,6 @@
     { key: "FLEX2", label: "FLEX", accepts: ["C", "LW", "RW"] },
   ];
 
-  // Assets folder uses abbreviations like: ANA.png, BOS.png, ... LA.png, NJ.png, TB.png, SJ.png, etc.
-  // If players.json uses LAK/NJD/TBL/SJS etc, we map to your filenames here.
   const LOGO_MAP = {
     LAK: "LA",
     NJD: "NJ",
@@ -62,7 +60,7 @@
   // ---------- STATE ----------
   let allPlayers = [];
   let availablePlayers = [];
-  let gameMode = null;
+  let gameMode = MODE_SINGLE;
 
   let currentPickIndex = 0;
   let currentTeam = null;
@@ -76,34 +74,27 @@
     rosters: { 1: makeEmptyRoster(), 2: makeEmptyRoster() },
     scores: { 1: 0, 2: 0 },
     onClock: 1,
-    selectedSlotKey: null, // user-selected slot for current onClock player
   };
 
+  // ---------- URL MODE ----------
+  const urlMode = (new URLSearchParams(window.location.search).get("mode") || "single").toLowerCase();
+  gameMode = (urlMode === "two" || urlMode === "versus" || urlMode === "vs") ? MODE_TWO : MODE_SINGLE;
+
   // ---------- EVENTS ----------
-  elStartSingle.addEventListener("click", () => {
-    elModeScreen.classList.add("hidden");
-    startGame(MODE_SINGLE);
-  });
-
-  elStartTwo.addEventListener("click", () => {
-    elModeScreen.classList.add("hidden");
-    startGame(MODE_TWO);
-  });
-
   elModeBtn.addEventListener("click", () => {
+    // go back to the separate mode page
     stopTimer();
-    elModeScreen.classList.remove("hidden");
-    clearUIForModeSelect();
+    window.location.href = "index.html";
   });
 
   elNewBtn.addEventListener("click", () => {
-    if (!gameMode) {
-      elModeScreen.classList.remove("hidden");
-      return;
-    }
     startGame(gameMode);
   });
 
+  elDraftPos.addEventListener("change", () => {
+    renderRosters();
+    renderPlayersTable();
+  });
   elPosFilter.addEventListener("change", renderPlayersTable);
   elSearch.addEventListener("input", renderPlayersTable);
 
@@ -112,14 +103,10 @@
     updateHighScoreUI();
   });
 
-  // ---------- INIT LOAD ----------
+  // ---------- INIT ----------
   loadPlayers()
     .then(() => {
-      elModeScreen.classList.remove("hidden");
-      elStatus.textContent = "Select a mode to begin.";
-      elSubStatus.textContent = "";
-      renderRosters();
-      renderPlayersTable();
+      startGame(gameMode);
     })
     .catch((err) => {
       showError(
@@ -151,7 +138,6 @@
     if (!allPlayers.length) throw new Error("players.json loaded but 0 valid players after normalization.");
 
     elDataStamp.textContent = `Data: ${new Date().toISOString()}`;
-    console.log("[NHL Pick’em] players:", allPlayers.length, "teams:", uniqueTeams(allPlayers).length);
   }
 
   function normalizePlayer(p) {
@@ -176,7 +162,7 @@
     };
   }
 
-  // ---------- GAME FLOW ----------
+  // ---------- GAME ----------
   function startGame(mode) {
     stopTimer();
 
@@ -197,11 +183,15 @@
 
     currentPickIndex = 0;
     game.onClock = 1;
-    game.selectedSlotKey = null;
 
     availablePlayers = [...allPlayers];
     remainingTeams = shuffle(uniqueTeams(availablePlayers));
     currentTeam = null;
+
+    // default UI
+    elDraftPos.value = "AUTO";
+    elPosFilter.value = "ALL";
+    elSearch.value = "";
 
     nextPick();
   }
@@ -225,7 +215,6 @@
     }
 
     game.onClock = pickOwner(currentPickIndex);
-    game.selectedSlotKey = null; // must select slot each pick (unless timer forces it)
 
     if (remainingTeams.length === 0) remainingTeams = shuffle(uniqueTeams(availablePlayers));
     currentTeam = remainingTeams.shift() || "—";
@@ -242,28 +231,18 @@
       elTimer.textContent = `${Math.max(0, timeLeft)}s`;
       if (timeLeft <= 0) {
         stopTimer();
-        autoPickFirstOpenAndRandom();
+        autoPickOnTimer();
       }
     }, 1000);
   }
 
-  // ✅ TIMER BEHAVIOR YOU REQUESTED:
-  // If timer hits 0, auto-select first OPEN slot and pick random legal player.
-  function autoPickFirstOpenAndRandom() {
-    // choose first open slot if none selected
-    if (!game.selectedSlotKey) {
-      const roster = game.rosters[game.onClock];
-      const firstOpen = SLOTS.find(s => !roster[s.key]);
-      if (!firstOpen) {
-        currentPickIndex += 1;
-        nextPick();
-        return;
-      }
-      game.selectedSlotKey = firstOpen.key;
-    }
+  // Timer hits 0 => pick random legal player for FIRST OPEN slot (AUTO logic)
+  function autoPickOnTimer() {
+    const owner = game.onClock;
+    const roster = game.rosters[owner];
 
-    const slot = SLOTS.find(s => s.key === game.selectedSlotKey);
-    if (!slot) {
+    const firstOpenSlot = SLOTS.find(s => !roster[s.key]);
+    if (!firstOpenSlot) {
       currentPickIndex += 1;
       nextPick();
       return;
@@ -271,10 +250,9 @@
 
     const legal = availablePlayers.filter(pl =>
       pl.team === currentTeam &&
-      slot.accepts.includes(pl.pos)
+      firstOpenSlot.accepts.includes(pl.pos)
     );
 
-    // If no legal player exists for that team/slot, just advance.
     if (!legal.length) {
       currentPickIndex += 1;
       nextPick();
@@ -282,7 +260,7 @@
     }
 
     const chosen = legal[Math.floor(Math.random() * legal.length)];
-    applyPick(chosen, game.onClock, slot.key);
+    applyPick(chosen, owner, firstOpenSlot.key);
   }
 
   function applyPick(player, owner, slotKey) {
@@ -309,10 +287,68 @@
     return (pickIndex % 2 === 0) ? 2 : 1;
   }
 
-  // ---------- UI / RENDER ----------
+  // ---------- DRAFT POSITION LOGIC ----------
+  function resolveSlotForPlayer(owner, player, draftPos) {
+    const roster = game.rosters[owner];
+
+    // Helper: find first open slot among a set of slot keys
+    const firstOpenAmong = (keys) => {
+      for (const k of keys) {
+        if (!roster[k]) return k;
+      }
+      return null;
+    };
+
+    // Slot key groups
+    const group = {
+      C: ["C"],
+      LW: ["LW"],
+      RW: ["RW"],
+      D: ["D1", "D2"],
+      G: ["G"],
+      FLEX: ["FLEX1", "FLEX2"],
+      AUTO: ["C", "LW", "RW", "D1", "D2", "G", "FLEX1", "FLEX2"]
+    };
+
+    // If draft position is chosen, we try to place in that group first (and must be eligible)
+    if (draftPos && draftPos !== "AUTO") {
+      const keys = group[draftPos] || [];
+      // must accept player position
+      const candidate = keys.find(k => {
+        const slotDef = SLOTS.find(s => s.key === k);
+        return slotDef && !roster[k] && slotDef.accepts.includes(player.pos);
+      });
+      if (candidate) return candidate;
+
+      // if they chose FLEX and player is C/LW/RW, but FLEX slots full -> no
+      // if they chose C/LW/RW and those slots full -> no
+      return null;
+    }
+
+    // AUTO placement:
+    // 1) try dedicated slot (C/LW/RW/D/G)
+    if (player.pos === "C" && !roster.C) return "C";
+    if (player.pos === "LW" && !roster.LW) return "LW";
+    if (player.pos === "RW" && !roster.RW) return "RW";
+    if (player.pos === "D") {
+      if (!roster.D1) return "D1";
+      if (!roster.D2) return "D2";
+    }
+    if (player.pos === "G" && !roster.G) return "G";
+
+    // 2) if skater C/LW/RW and dedicated slot full, use FLEX
+    if (["C", "LW", "RW"].includes(player.pos)) {
+      if (!roster.FLEX1) return "FLEX1";
+      if (!roster.FLEX2) return "FLEX2";
+    }
+
+    return null;
+  }
+
+  // ---------- UI ----------
   function updateStatusText() {
     elStatus.textContent = `Mode: ${gameMode === MODE_SINGLE ? "Single" : "Versus"} • Pick ${currentPickIndex + 1} • Team: ${currentTeam}`;
-    elSubStatus.textContent = `On the clock: Player ${game.onClock}. Select an OPEN roster slot to draft.`;
+    elSubStatus.textContent = `On the clock: Player ${game.onClock}. Choose Draft Position or click a roster slot, then click a player.`;
   }
 
   function renderPlayersTable() {
@@ -323,18 +359,28 @@
 
     let list = availablePlayers;
 
+    // current team only
     if (currentTeam && currentTeam !== "—") {
       list = list.filter(p => p.team === currentTeam);
     }
 
+    // show position dropdown (optional)
     const pf = elPosFilter.value;
     if (pf !== "ALL") list = list.filter(p => p.pos === pf);
 
-    if (game.selectedSlotKey) {
-      const slot = SLOTS.find(s => s.key === game.selectedSlotKey);
-      if (slot) list = list.filter(p => slot.accepts.includes(p.pos));
+    // draft position filter (important)
+    const draftPos = elDraftPos.value || "AUTO";
+    if (draftPos !== "AUTO") {
+      // only show players who can fit the chosen draft position for onClock roster
+      const owner = game.onClock;
+      list = list.filter(p => resolveSlotForPlayer(owner, p, draftPos) !== null);
+    } else {
+      // AUTO: only show players that can fit somewhere (so you don't see dead picks)
+      const owner = game.onClock;
+      list = list.filter(p => resolveSlotForPlayer(owner, p, "AUTO") !== null);
     }
 
+    // search
     const q = elSearch.value.trim().toLowerCase();
     if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
 
@@ -343,6 +389,7 @@
       return;
     }
 
+    // sort best-to-worst for usability
     list = list.slice().sort((a,b) => (b.points - a.points) || a.name.localeCompare(b.name));
 
     elPlayersTbody.innerHTML = list.map(p => `
@@ -353,15 +400,19 @@
       </tr>
     `).join("");
 
+    // click a player -> place into the correct slot based on Draft Position (or AUTO)
     [...elPlayersTbody.querySelectorAll("tr[data-id]")].forEach(tr => {
       tr.addEventListener("click", () => {
-        if (!game.selectedSlotKey) return; // must select slot first during normal play
-
         const id = tr.getAttribute("data-id");
         const player = availablePlayers.find(x => x.id === id);
         if (!player) return;
 
-        applyPick(player, game.onClock, game.selectedSlotKey);
+        const owner = game.onClock;
+        const draftPos = elDraftPos.value || "AUTO";
+        const slotKey = resolveSlotForPlayer(owner, player, draftPos);
+
+        if (!slotKey) return; // blocked illegal pick
+        applyPick(player, owner, slotKey);
       });
     });
   }
@@ -373,6 +424,7 @@
     for (let i = 1; i <= game.playersCount; i++) cards.push(renderRosterCard(i));
     elRostersWrap.innerHTML = cards.join("");
 
+    // Optional: clicking a roster slot sets Draft Position dropdown to match
     for (let i = 1; i <= game.playersCount; i++) {
       SLOTS.forEach(slot => {
         const el = document.getElementById(`slot_${i}_${slot.key}`);
@@ -382,8 +434,14 @@
           if (i !== game.onClock) return;
           if (game.rosters[i][slot.key]) return;
 
-          game.selectedSlotKey = slot.key;
-          renderRosters();
+          // Set Draft Position selector based on the slot clicked
+          if (slot.key === "C") elDraftPos.value = "C";
+          else if (slot.key === "LW") elDraftPos.value = "LW";
+          else if (slot.key === "RW") elDraftPos.value = "RW";
+          else if (slot.key === "G") elDraftPos.value = "G";
+          else if (slot.key === "D1" || slot.key === "D2") elDraftPos.value = "D";
+          else if (slot.key === "FLEX1" || slot.key === "FLEX2") elDraftPos.value = "FLEX";
+
           renderPlayersTable();
         });
       });
@@ -397,9 +455,7 @@
       const picked = game.rosters[owner][slot.key];
       const open = !picked;
 
-      const active = (owner === game.onClock && game.selectedSlotKey === slot.key);
-      const cls = ["slot", open ? "open" : "filled", active ? "active" : ""].join(" ");
-
+      const cls = ["slot", open ? "open" : "filled"].join(" ");
       const name = picked ? picked.name : "—";
       const team = picked ? picked.team : "—";
       const state = open ? "OPEN" : "FILLED";
@@ -436,14 +492,6 @@
     const fileKey = LOGO_MAP[currentTeam] || currentTeam;
     elTeamLogo.src = `assets/logos/${fileKey}.png`;
     elTeamLogo.onerror = () => { elTeamLogo.src = ""; };
-  }
-
-  function clearUIForModeSelect() {
-    elStatus.textContent = "Select a mode to begin.";
-    elSubStatus.textContent = "";
-    elTeamAbbrev.textContent = "—";
-    elTeamLogo.src = "";
-    elTimer.textContent = "30s";
   }
 
   // ---------- SCORE / HIGH SCORE ----------
