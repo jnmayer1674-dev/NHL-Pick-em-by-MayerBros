@@ -1,614 +1,808 @@
-/* NHL Pick’em by MayerBros - app.js (ROOT)
-   Fixes:
-   - players.json can be ARRAY or { players: ARRAY }
-   - Versus: same team for both players per round
-   - Show "Round X of 8"
-   - Winner highlight at end of Versus
-   - Draft Position AUTO: clicking roster slot temporarily overrides for ONE pick, then returns to AUTO
-   - Show Position resets to ALL after each pick AND when New Game / Change Mode
-*/
+(() => {
+  // ===== Config =====
+  const ROSTER_SLOTS = ["C","LW","RW","D","D","G","FLEX","FLEX"];
+  const TOTAL_ROUNDS = 8;
+  const TURN_SECONDS = 30;
 
-document.addEventListener("DOMContentLoaded", () => {
-  try {
-    boot();
-  } catch (e) {
-    console.error(e);
-    alert("App crashed. Open Console.\n\n" + (e?.stack || e));
-  }
-});
+  const LOGO_BASE = "assets/logos/";
+  const DEFAULT_LOGO = ""; // if blank, we just keep last valid logo
 
-function boot() {
-  // --- DOM helpers
-  const $ = (id) => document.getElementById(id);
-  const must = (id) => {
-    const el = $(id);
-    if (!el) throw new Error(`Missing element #${id}`);
-    return el;
-  };
+  const HS_KEY = "nhl_pickem_highscore_v1";
 
-  // --- DOM nodes (match your existing HTML)
-  const elStatus = must("statusLine");
-  const elSubStatus = must("subStatusLine");
-  const elBtnMode = must("btnMode");
-  const elBtnNew = must("btnNew");
+  // ===== DOM =====
+  const elStatus = document.getElementById("statusLine");
+  const elSubStatus = document.getElementById("subStatusLine");
+  const elBtnMode = document.getElementById("btnMode");
+  const elBtnNew = document.getElementById("btnNew");
 
-  const elTeamLogo = must("teamLogo");
-  const elTeamAbbrev = must("teamAbbrev");
-  const elTimer = must("timer");
+  const elTeamLogo = document.getElementById("teamLogo");
+  const elTeamAbbrev = document.getElementById("teamAbbrev");
+  const elTimer = document.getElementById("timer");
 
-  const elDraftPos = must("draftPos");     // "AUTO" or C/LW/RW/D/G/FLEX
-  const elPosFilter = must("posFilter");   // "ALL" or C/LW/RW/D/G
-  const elSearch = must("search");
-  const elPlayersTbody = must("playersTbody");
+  const elDraftPos = document.getElementById("draftPos");
+  const elPosFilter = document.getElementById("posFilter");
+  const elSearch = document.getElementById("search");
+  const elStamp = document.getElementById("dataStamp");
 
-  const elErrorBox = must("errorBox");
-  const elDataStamp = must("dataStamp");
+  const elPlayersTbody = document.getElementById("playersTbody");
+  const elErrorBox = document.getElementById("errorBox");
 
-  const elRostersWrap = must("rostersWrap");
-  const elSingleExtras = must("singleExtras");
-  const elHighScore = must("highScore");
-  const elResetHS = must("btnResetHS");
+  const elRostersWrap = document.getElementById("rostersWrap");
 
-  const STORAGE_KEY_HS = "nhl_pickem_highscore_v10";
+  const elSingleExtras = document.getElementById("singleExtras");
+  const elHighScore = document.getElementById("highScore");
+  const elBtnResetHS = document.getElementById("btnResetHS");
 
-  const MODE_SINGLE = "single";
-  const MODE_TWO = "two";
+  // ===== State =====
+  let mode = "single"; // 'single' | 'two'
+  let allPlayers = [];
+  let usedPlayerIds = new Set(); // prevent drafting same player twice
 
-  const LOGO_MAP = { LAK: "LA", NJD: "NJ", TBL: "TB", SJS: "SJ" };
+  let availableTeams = []; // shuffled once per game
+  let usedTeams = new Set();
 
-  // Slots: C, LW, RW, D, D, G, FLEX, FLEX (FLEX accepts C/LW/RW only)
-  const SLOTS = [
-    { key: "C",     label: "C",    accepts: ["C"],           draftPos: "C",    showPos: "C" },
-    { key: "LW",    label: "LW",   accepts: ["LW"],          draftPos: "LW",   showPos: "LW" },
-    { key: "RW",    label: "RW",   accepts: ["RW"],          draftPos: "RW",   showPos: "RW" },
-    { key: "D1",    label: "D",    accepts: ["D"],           draftPos: "D",    showPos: "D" },
-    { key: "D2",    label: "D",    accepts: ["D"],           draftPos: "D",    showPos: "D" },
-    { key: "G",     label: "G",    accepts: ["G"],           draftPos: "G",    showPos: "G" },
-    { key: "FLEX1", label: "FLEX", accepts: ["C","LW","RW"], draftPos: "FLEX", showPos: "ALL" },
-    { key: "FLEX2", label: "FLEX", accepts: ["C","LW","RW"], draftPos: "FLEX", showPos: "ALL" },
+  let roundIndex = 0; // 0..7
+  let pickInRound = 0; // 0 or 1 (two picks per round in both modes)
+  let onClock = 0; // player index 0/1
+
+  let timer = TURN_SECONDS;
+  let timerHandle = null;
+
+  // selection UX
+  let clickedSlotOverride = null;     // e.g. "D" (from roster click)
+  let usedTempDraftOverride = false; // only when Draft Position was AUTO and slot was clicked
+
+  // logo fallback
+  let lastGoodLogoSrc = "";
+
+  // rosters
+  const rosters = [
+    makeEmptyRoster("Player 1"),
+    makeEmptyRoster("Player 2")
   ];
 
-  // --- state
-  let gameMode = MODE_SINGLE;
-  let allPlayers = [];
-  let availablePlayers = [];
-  let uniqueTeams = [];
-  let remainingTeams = [];
-  let currentTeam = null;
+  function makeEmptyRoster(name){
+    return {
+      name,
+      slots: ROSTER_SLOTS.map((pos, idx) => ({
+        idx,
+        pos,
+        filled: false,
+        player: null
+      })),
+      score: 0
+    };
+  }
 
-  let pickIndex = 0; // 0..(slots*players-1)
-  let timerId = null;
-  let timeLeft = 30;
+  // ===== Boot =====
+  init();
 
-  // When Draft Position = AUTO and user clicks a roster slot:
-  //  - overrideDraftPosOnce stores the forced draftPos to use for THIS pick only
-  //  - after the pick, Draft Position returns to AUTO
-  let overrideDraftPosOnce = null;
+  async function init(){
+    // mode from URL
+    const params = new URLSearchParams(location.search);
+    const m = params.get("mode");
+    mode = (m === "two") ? "two" : "single";
 
-  // When user clicks roster slot we also temporarily set Show Position;
-  // after the pick we reset Show Position back to ALL.
-  let showPosTempOverride = false;
+    document.body.classList.toggle("mode-two", mode === "two");
+    document.body.classList.toggle("mode-single", mode === "single");
 
-  const game = {
-    playersCount: 1,
-    onClock: 1,
-    rosters: { 1: {}, 2: {} },
-    scores: { 1: 0, 2: 0 },
-    winner: 0,
-  };
+    // single extras visibility
+    if (elSingleExtras){
+      elSingleExtras.style.display = (mode === "single") ? "flex" : "none";
+    }
 
-  // --- UI helpers
-  function showError(msg) {
+    // buttons
+    elBtnMode?.addEventListener("click", () => {
+      // go back to main menu
+      window.location.href = "index.html";
+    });
+
+    elBtnNew?.addEventListener("click", () => {
+      resetFilters(true);
+      startNewGame();
+    });
+
+    elDraftPos?.addEventListener("change", () => {
+      // user manually changes it; no extra state needed
+      renderPlayers();
+    });
+
+    elPosFilter?.addEventListener("change", () => renderPlayers());
+    elSearch?.addEventListener("input", () => renderPlayers());
+
+    elBtnResetHS?.addEventListener("click", () => {
+      localStorage.setItem(HS_KEY, "0");
+      updateHighScoreUI();
+    });
+
+    // load players
+    await loadPlayers();
+
+    // build rosters UI
+    renderRosters();
+
+    // load high score
+    updateHighScoreUI();
+
+    // start game
+    startNewGame();
+  }
+
+  function showError(msg){
+    if (!elErrorBox) return;
     elErrorBox.textContent = msg;
     elErrorBox.classList.remove("hidden");
   }
-  function hideError() {
-    elErrorBox.textContent = "";
+  function clearError(){
+    if (!elErrorBox) return;
     elErrorBox.classList.add("hidden");
+    elErrorBox.textContent = "";
   }
 
-  function fmt(n) {
-    const x = Number(n) || 0;
-    return x.toFixed(1);
-  }
+  async function loadPlayers(){
+    clearError();
+    try{
+      const res = await fetch("data/players.json", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Could not load data/players.json (HTTP ${res.status})`);
+      const data = await res.json();
 
-  function stopTimer() {
-    if (timerId) clearInterval(timerId);
-    timerId = null;
-  }
+      // Handle: array, {players:[...]}, {data:[...]}, or map/object
+      let raw = null;
+      if (Array.isArray(data)) raw = data;
+      else if (data && Array.isArray(data.players)) raw = data.players;
+      else if (data && Array.isArray(data.data)) raw = data.data;
+      else if (data && typeof data === "object") raw = Object.values(data);
+      else raw = [];
 
-  function shuffle(a) {
-    const arr = [...a];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      // normalize into consistent shape
+      allPlayers = raw
+        .map((p, i) => normalizePlayer(p, i))
+        .filter(p => p && p.name && p.team && p.pos);
+
+      if (!allPlayers.length){
+        showError("No players loaded. Check that data/players.json contains an array of players (or {players:[...]}).");
+      }
+
+      // stamp
+      const now = new Date().toISOString();
+      elStamp.textContent = `Data: ${now}`;
+
+      renderPlayers();
+    }catch(err){
+      showError(err.message || String(err));
+      elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">No players loaded yet. Make sure players.json is in the data folder.</td></tr>`;
     }
-    return arr;
   }
 
-  // --- mode from URL
-  const urlMode = (new URLSearchParams(location.search).get("mode") || "single").toLowerCase();
-  gameMode = (urlMode === "two" || urlMode === "versus") ? MODE_TWO : MODE_SINGLE;
+  function normalizePlayer(p, fallbackId){
+    if (!p || typeof p !== "object") return null;
 
-  // --- wire buttons
-  elBtnMode.onclick = () => {
-    // Reset filters before leaving
-    elDraftPos.value = "AUTO";
-    elPosFilter.value = "ALL";
-    location.href = "index.html";
-  };
+    // common field names
+    const name = p.name ?? p.player ?? p.fullName ?? p.Player ?? "";
+    const team = (p.team ?? p.Team ?? p.abbrev ?? p.teamAbbrev ?? "").toString().toUpperCase().trim();
+    const posRaw = (p.pos ?? p.position ?? p.Pos ?? "").toString().toUpperCase().trim();
 
-  elBtnNew.onclick = () => startGame(gameMode);
+    // fantasy points field names supported
+    const ptsVal = p.points ?? p.draftPoints ?? p.fantasyPoints ?? p.fp ?? p.FP ?? 0;
+    const points = Number(ptsVal) || 0;
 
-  elSearch.addEventListener("input", () => renderPlayers());
-  elPosFilter.addEventListener("change", () => {
-    showPosTempOverride = false;
-    renderPlayers();
-  });
+    // ID to dedupe
+    const id = (p.id ?? p.playerId ?? p.pid ?? `${name}|${team}|${posRaw}|${fallbackId}`).toString();
 
-  elDraftPos.addEventListener("change", () => {
-    // Manual change cancels the one-pick override
-    overrideDraftPosOnce = null;
-    renderPlayers();
-  });
+    // normalize positions (sometimes "C/LW" etc — take first)
+    let pos = posRaw;
+    if (pos.includes("/")) pos = pos.split("/")[0].trim();
+    if (pos === "LD" || pos === "RD") pos = "D";
+    if (pos === "G" || pos === "GK") pos = "G";
 
-  elResetHS.onclick = () => {
-    localStorage.setItem(STORAGE_KEY_HS, "0");
-    updateHighScoreUI();
-  };
-
-  // --- boot
-  loadPlayers()
-    .then(() => startGame(gameMode))
-    .catch((e) => {
-      console.error(e);
-      showError(e.message || "Failed to load players.json");
-    });
-
-  // =========================
-  // DATA LOAD (fixes data.map crash)
-  // =========================
-  async function loadPlayers() {
-    hideError();
-    const res = await fetch(`data/players.json?v=${Date.now()}`);
-    if (!res.ok) throw new Error(`Could not load data/players.json (${res.status})`);
-
-    const raw = await res.json();
-
-    // ✅ Accept either:
-    //   1) Array: [ {name,pos,team,points,...}, ... ]
-    //   2) Object: { players: [ ... ] }  (or data:)
-    const arr =
-      Array.isArray(raw) ? raw :
-      Array.isArray(raw.players) ? raw.players :
-      Array.isArray(raw.data) ? raw.data :
-      null;
-
-    if (!arr) {
-      // show small preview to help debugging
-      const preview = JSON.stringify(raw).slice(0, 200);
-      throw new Error(`players.json format unexpected. Expected an array or {players:[...]}. Got: ${preview}`);
-    }
-
-    allPlayers = arr.map((p, idx) => ({
-      id: p.id || `${p.name || "P"}-${p.team || "T"}-${p.pos || "X"}-${idx}`,
-      name: p.name || "Unknown",
-      pos: (p.pos || "").toUpperCase(),
-      team: (p.team || "").toUpperCase(),
-      points: Number(p.points ?? p.fantasyPoints ?? 0) || 0,
-    }));
-
-    uniqueTeams = [...new Set(allPlayers.map((p) => p.team).filter(Boolean))].sort();
-    elDataStamp.textContent = raw.generatedAt ? `Data: ${raw.generatedAt}` : `Data loaded`;
+    return {
+      id,
+      name: String(name).trim(),
+      team,
+      pos,
+      points
+    };
   }
 
-  // =========================
-  // GAME START / RESET
-  // =========================
-  function startGame(mode) {
-    stopTimer();
-    hideError();
-
-    gameMode = mode;
-    game.playersCount = (mode === MODE_SINGLE) ? 1 : 2;
-    game.winner = 0;
-
-    game.rosters[1] = emptyRoster();
-    game.rosters[2] = emptyRoster();
-    game.scores[1] = 0;
-    game.scores[2] = 0;
-
-    availablePlayers = [...allPlayers];
-
-    remainingTeams = shuffle(uniqueTeams);
-    currentTeam = null;
-
-    pickIndex = 0;
-    overrideDraftPosOnce = null;
-    showPosTempOverride = false;
-
-    // reset dropdowns & search always on new game
-    elDraftPos.value = "AUTO";
-    elPosFilter.value = "ALL";
-    elSearch.value = "";
-
-    if (game.playersCount === 1) {
-      elSingleExtras.classList.remove("hidden");
-      updateHighScoreUI();
-    } else {
-      elSingleExtras.classList.add("hidden");
-    }
-
-    nextPick();
-  }
-
-  function emptyRoster() {
-    const r = {};
-    SLOTS.forEach((s) => (r[s.key] = null));
-    return r;
-  }
-
-  // =========================
-  // PICK FLOW
-  // =========================
-  function nextPick() {
+  // ===== Game Start / Flow =====
+  function startNewGame(){
     stopTimer();
 
-    const totalPicks = SLOTS.length * game.playersCount;
-    if (pickIndex >= totalPicks) {
-      finalizeGame();
+    // reset state
+    usedPlayerIds = new Set();
+    usedTeams = new Set();
+
+    roundIndex = 0;
+    pickInRound = 0;
+    onClock = 0;
+
+    // reset rosters
+    rosters[0] = makeEmptyRoster("Player 1");
+    rosters[1] = makeEmptyRoster("Player 2");
+
+    // shuffle teams from data
+    availableTeams = shuffle(uniqueTeamsFromPlayers(allPlayers));
+    if (!availableTeams.length){
+      setStatus("No teams available (data issue).");
+      renderRosters();
+      renderPlayers();
       return;
     }
 
-    // onClock
-    game.onClock = (game.playersCount === 1) ? 1 : ((pickIndex % 2) === 0 ? 1 : 2);
+    // clear selection UX
+    clickedSlotOverride = null;
+    usedTempDraftOverride = false;
 
-    // ✅ choose team ONCE per round in Versus, once per pick in Single
-    // round = floor(pickIndex / playersCount) + 1
-    const round = Math.floor(pickIndex / game.playersCount) + 1;
+    // reset filters (Show Position All, Search blank, DraftPos AUTO)
+    resetFilters(true);
 
-    const isStartOfRound = (game.playersCount === 1) ? true : (pickIndex % game.playersCount === 0);
-    if (isStartOfRound) {
-      if (!remainingTeams.length) remainingTeams = shuffle(uniqueTeams);
-      currentTeam = remainingTeams.shift() || uniqueTeams[Math.floor(Math.random() * uniqueTeams.length)];
-    }
+    // set first team
+    setCurrentTeamForRound();
 
-    updateTeamBadge();
-
-    elStatus.textContent = `Mode: ${gameMode === "single" ? "Single" : "Versus"} • Round ${round} of 8 • Team: ${currentTeam}`;
-    elSubStatus.textContent = `On the clock: Player ${game.onClock}`;
-
+    // render
     renderRosters();
     renderPlayers();
 
+    // start timer
+    timer = TURN_SECONDS;
     startTimer();
+
+    updateHeader();
   }
 
-  function startTimer() {
-    timeLeft = 30;
-    elTimer.textContent = "30s";
-    timerId = setInterval(() => {
-      timeLeft -= 1;
-      elTimer.textContent = `${Math.max(0, timeLeft)}s`;
-      if (timeLeft <= 0) {
-        stopTimer();
+  function resetFilters(resetDraftPosToo){
+    // reset Show Position & Search always
+    if (elPosFilter) elPosFilter.value = "ALL";
+    if (elSearch) elSearch.value = "";
+    clickedSlotOverride = null;
+
+    if (resetDraftPosToo && elDraftPos){
+      elDraftPos.value = "AUTO";
+      usedTempDraftOverride = false;
+    }
+    renderPlayers();
+  }
+
+  function updateHeader(extraMsg=""){
+    const team = getCurrentTeam();
+    const roundText = `Round ${roundIndex + 1} of ${TOTAL_ROUNDS}`;
+    const pickText = `Pick ${roundIndex * 2 + pickInRound + 1} of ${TOTAL_ROUNDS * 2}`;
+    const modeText = (mode === "two") ? "Versus" : "Single";
+
+    const onClockName = (mode === "two") ? rosters[onClock].name : "Player 1";
+
+    setStatus(`Mode: ${modeText} • ${roundText} • ${pickText} • Team: ${team}`);
+    setSubStatus(`On the clock: ${onClockName}. Choose Draft Position then click a player.`);
+    if (extraMsg) setSubStatus(extraMsg);
+
+    setTeamBadge(team);
+  }
+
+  function setStatus(text){
+    if (elStatus) elStatus.textContent = text;
+  }
+  function setSubStatus(text){
+    if (elSubStatus) elSubStatus.textContent = text;
+  }
+
+  function setTeamBadge(team){
+    if (elTeamAbbrev) elTeamAbbrev.textContent = team;
+
+    const src = logoForTeam(team);
+
+    // keep last good logo instead of broken at end
+    if (src){
+      elTeamLogo.src = src;
+      elTeamLogo.onerror = () => {
+        // revert to last good; if none, hide
+        if (lastGoodLogoSrc){
+          elTeamLogo.src = lastGoodLogoSrc;
+        } else {
+          elTeamLogo.removeAttribute("src");
+        }
+      };
+      lastGoodLogoSrc = src;
+    } else {
+      // if we don't have a source, keep lastGoodLogoSrc
+      if (lastGoodLogoSrc){
+        elTeamLogo.src = lastGoodLogoSrc;
+      } else {
+        elTeamLogo.removeAttribute("src");
+      }
+    }
+  }
+
+  function logoForTeam(team){
+    if (!team) return "";
+    return `${LOGO_BASE}${team}.png`;
+  }
+
+  function uniqueTeamsFromPlayers(players){
+    const s = new Set();
+    for (const p of players){
+      if (p.team) s.add(p.team.toUpperCase());
+    }
+    return [...s];
+  }
+
+  function setCurrentTeamForRound(){
+    // each round uses a single team, used once per game
+    const next = availableTeams.find(t => !usedTeams.has(t));
+    if (!next){
+      // no more teams; end game
+      finishGame();
+      return;
+    }
+    usedTeams.add(next);
+    // store on window for easy access
+    window.__currentRoundTeam = next;
+  }
+
+  function getCurrentTeam(){
+    return window.__currentRoundTeam || "—";
+  }
+
+  function advanceTurnAfterPick(){
+    // After any pick: reset Show Position to All and clear slot click override
+    if (elPosFilter) elPosFilter.value = "ALL";
+    clickedSlotOverride = null;
+
+    // Also: if Draft Position was AUTO and we temporarily overrode it via slot-click,
+    // revert it back to AUTO now.
+    if (usedTempDraftOverride && elDraftPos){
+      elDraftPos.value = "AUTO";
+      usedTempDraftOverride = false;
+    }
+
+    // advance pick
+    pickInRound++;
+
+    if (mode === "two"){
+      // two picks per round; snake who picks first each round
+      // odd rounds: P1 first, even rounds: P2 first
+      if (pickInRound === 1){
+        // second pick of round
+        onClock = (roundIndex % 2 === 0) ? 1 : 0;
+      } else {
+        // round over
+        roundIndex++;
+        pickInRound = 0;
+
+        if (roundIndex >= TOTAL_ROUNDS){
+          finishGame();
+          return;
+        }
+        // new round team
+        setCurrentTeamForRound();
+
+        // first picker next round (snake)
+        onClock = (roundIndex % 2 === 0) ? 0 : 1;
+      }
+    } else {
+      // single: always player 1, but still 2 picks per round for "team by team" cadence
+      if (pickInRound >= 2){
+        roundIndex++;
+        pickInRound = 0;
+
+        if (roundIndex >= TOTAL_ROUNDS){
+          finishGame();
+          return;
+        }
+        setCurrentTeamForRound();
+      }
+      onClock = 0;
+    }
+
+    // reset timer each pick
+    timer = TURN_SECONDS;
+    renderPlayers();
+    renderRosters();
+    updateHeader();
+  }
+
+  function finishGame(){
+    stopTimer();
+    renderPlayers();
+    renderRosters();
+
+    if (mode === "single"){
+      const score = rosters[0].score;
+      setStatus("Game complete.");
+      setSubStatus(`Final: ${score.toFixed(1)}`);
+
+      // high score update
+      const hs = Number(localStorage.getItem(HS_KEY) || "0") || 0;
+      if (score > hs){
+        localStorage.setItem(HS_KEY, String(score));
+        updateHighScoreUI();
+      }
+
+      // keep last logo (do nothing to logo)
+      return;
+    }
+
+    // Versus: declare winner + highlight
+    const s1 = rosters[0].score;
+    const s2 = rosters[1].score;
+
+    let msg = `Final: P1 ${s1.toFixed(1)} — P2 ${s2.toFixed(1)}`;
+    if (s1 > s2) msg += " • Winner: Player 1 🏆";
+    else if (s2 > s1) msg += " • Winner: Player 2 🏆";
+    else msg += " • Tie 🤝";
+
+    setStatus("Game complete.");
+    setSubStatus(msg);
+
+    // winner highlight applied in renderRosters()
+  }
+
+  // ===== Timer =====
+  function startTimer(){
+    stopTimer();
+    timerHandle = setInterval(() => {
+      timer--;
+      if (timer < 0) timer = 0;
+      if (elTimer) elTimer.textContent = `${timer}s`;
+
+      if (timer === 0){
+        // auto-pick first open slot with random legal player
         autoPick();
       }
     }, 1000);
+    if (elTimer) elTimer.textContent = `${timer}s`;
   }
 
-  function autoPick() {
-    const owner = game.onClock;
+  function stopTimer(){
+    if (timerHandle){
+      clearInterval(timerHandle);
+      timerHandle = null;
+    }
+  }
 
-    const openSlot = firstOpenSlotKey(owner);
-    if (!openSlot) {
-      pickIndex++;
-      nextPick();
+  function autoPick(){
+    // prevent repeated auto picks at 0
+    if (!timerHandle) return;
+
+    // pick a slot
+    const roster = rosters[onClock];
+    const firstOpen = roster.slots.find(s => !s.filled);
+    if (!firstOpen){
+      // roster full
+      advanceTurnAfterPick();
       return;
     }
 
-    const legal = legalPlayersForSlot(openSlot);
-    if (!legal.length) {
-      pickIndex++;
-      nextPick();
+    const team = getCurrentTeam();
+    const pool = eligiblePlayersFor(team, firstOpen.pos)
+      .filter(p => !usedPlayerIds.has(p.id));
+
+    if (!pool.length){
+      // if no legal player for that slot/team, try next open slots
+      const openSlots = roster.slots.filter(s => !s.filled);
+      for (const s of openSlots){
+        const pool2 = eligiblePlayersFor(team, s.pos).filter(p => !usedPlayerIds.has(p.id));
+        if (pool2.length){
+          const pick = pool2[Math.floor(Math.random() * pool2.length)];
+          applyPick(pick, s.idx, true);
+          return;
+        }
+      }
+      // no legal players at all for this team -> advance
+      advanceTurnAfterPick();
       return;
     }
 
-    const p = legal[Math.floor(Math.random() * legal.length)];
-    applyPick(p, openSlot);
+    const player = pool[Math.floor(Math.random() * pool.length)];
+    applyPick(player, firstOpen.idx, true);
   }
 
-  function applyPick(player, slotKey) {
-    const owner = game.onClock;
+  // ===== Rendering =====
+  function renderPlayers(){
+    if (!elPlayersTbody) return;
 
-    // place player
-    game.rosters[owner][slotKey] = player;
-    game.scores[owner] += player.points;
+    const team = getCurrentTeam();
+    const search = (elSearch?.value || "").trim().toLowerCase();
+    const showPos = elPosFilter?.value || "ALL";
 
-    // remove from pool
-    availablePlayers = availablePlayers.filter((p) => p.id !== player.id);
+    // If user clicked a roster slot while Draft Position is AUTO, filter list to that slot's legal positions.
+    const slotFilter = clickedSlotOverride;
 
-    // ✅ after pick: if we temporarily overrode Draft Position, return to AUTO
-    if (overrideDraftPosOnce) {
-      overrideDraftPosOnce = null;
-      elDraftPos.value = "AUTO";
+    let list = allPlayers.filter(p => p.team === team);
+    list = list.filter(p => !usedPlayerIds.has(p.id));
+
+    // show position dropdown filter
+    if (showPos !== "ALL"){
+      list = list.filter(p => p.pos === showPos);
     }
 
-    // ✅ after pick: reset Show Position back to ALL if it was temporarily forced by roster click
-    if (showPosTempOverride) {
-      showPosTempOverride = false;
-      elPosFilter.value = "ALL";
-    }
-
-    // advance
-    pickIndex++;
-    nextPick();
-  }
-
-  function firstOpenSlotKey(owner) {
-    for (const s of SLOTS) {
-      if (!game.rosters[owner][s.key]) return s.key;
-    }
-    return null;
-  }
-
-  function slotByKey(key) {
-    return SLOTS.find((s) => s.key === key) || null;
-  }
-
-  function legalPlayersForSlot(slotKey) {
-    const slot = slotByKey(slotKey);
-    if (!slot) return [];
-    return availablePlayers.filter((p) => p.team === currentTeam && slot.accepts.includes(p.pos));
-  }
-
-  // Choose which slot should be filled when user clicks a player row:
-  // - If Draft Position is AUTO:
-  //     - use overrideDraftPosOnce if set (from roster click)
-  //     - else fill the first open legal slot
-  // - If Draft Position is not AUTO:
-  //     - find an open slot that matches that draftPos (e.g., D chooses D1 then D2)
-  function decideSlotForPlayer(player) {
-    const owner = game.onClock;
-
-    const dp = (elDraftPos.value || "AUTO").toUpperCase();
-    const effectiveDp = (dp === "AUTO" && overrideDraftPosOnce) ? overrideDraftPosOnce : dp;
-
-    if (effectiveDp === "AUTO") {
-      // first open slot that accepts the player's pos
-      for (const s of SLOTS) {
-        if (!game.rosters[owner][s.key] && s.accepts.includes(player.pos)) return s.key;
-      }
-      return null;
-    }
-
-    // map "D" or "FLEX" to slot.draftPos
-    for (const s of SLOTS) {
-      if (game.rosters[owner][s.key]) continue;
-      if (s.draftPos === effectiveDp && s.accepts.includes(player.pos)) return s.key;
-    }
-    return null;
-  }
-
-  // =========================
-  // RENDER: PLAYERS TABLE
-  // =========================
-  function renderPlayers() {
-    const q = (elSearch.value || "").trim().toLowerCase();
-
-    // show position filter
-    const showPos = (elPosFilter.value || "ALL").toUpperCase();
-
-    // determine which positions are allowed by current draft position selection
-    const dp = (elDraftPos.value || "AUTO").toUpperCase();
-    const effectiveDp = (dp === "AUTO" && overrideDraftPosOnce) ? overrideDraftPosOnce : dp;
-
-    let list = availablePlayers.filter((p) => p.team === currentTeam);
-
-    // apply Show Position
-    if (showPos !== "ALL") list = list.filter((p) => p.pos === showPos);
-
-    // apply search
-    if (q) list = list.filter((p) => p.name.toLowerCase().includes(q));
-
-    // apply Draft Position constraints (so illegal picks are blocked visually)
-    if (effectiveDp !== "AUTO") {
-      // legal positions depend on which open slot matches effectiveDp
-      const owner = game.onClock;
-      const openSlots = SLOTS.filter((s) => !game.rosters[owner][s.key] && s.draftPos === effectiveDp);
-
-      // if no open slot for that draftPos, show none
-      if (!openSlots.length) list = [];
-      else {
-        const accepts = new Set(openSlots.flatMap((s) => s.accepts));
-        list = list.filter((p) => accepts.has(p.pos));
+    // roster slot click filter (stronger filter)
+    if (slotFilter){
+      if (slotFilter === "FLEX"){
+        list = list.filter(p => ["C","LW","RW"].includes(p.pos));
+      } else {
+        list = list.filter(p => p.pos === slotFilter);
       }
     }
 
-    // build table
-    if (!list.length) {
-      elPlayersTbody.innerHTML = `
-        <tr><td colspan="3" class="muted">No eligible players for this team/filters.</td></tr>
+    if (search){
+      list = list.filter(p => p.name.toLowerCase().includes(search));
+    }
+
+    // sort by points desc
+    list.sort((a,b) => (b.points - a.points) || a.name.localeCompare(b.name));
+
+    if (!list.length){
+      elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">No eligible players for this team/filters.</td></tr>`;
+      return;
+    }
+
+    const rows = list.slice(0, 300).map(p => {
+      return `
+        <tr data-pid="${escapeHtml(p.id)}">
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.pos)}</td>
+          <td>${escapeHtml(p.team)}</td>
+        </tr>
       `;
-      return;
-    }
+    }).join("");
 
-    elPlayersTbody.innerHTML = list
-      .map((p) => {
-        return `
-          <tr class="playerRow" data-id="${p.id}">
-            <td>${escapeHtml(p.name)}</td>
-            <td>${escapeHtml(p.pos)}</td>
-            <td>${escapeHtml(p.team)}</td>
-          </tr>
-        `;
-      })
-      .join("");
+    elPlayersTbody.innerHTML = rows;
 
-    // row click handler
-    [...elPlayersTbody.querySelectorAll(".playerRow")].forEach((row) => {
-      row.addEventListener("click", () => {
-        const id = row.getAttribute("data-id");
-        const player = availablePlayers.find((x) => x.id === id);
+    // click handlers
+    [...elPlayersTbody.querySelectorAll("tr[data-pid]")].forEach(tr => {
+      tr.addEventListener("click", () => {
+        const pid = tr.getAttribute("data-pid");
+        const player = allPlayers.find(x => x.id === pid);
         if (!player) return;
-
-        const slotKey = decideSlotForPlayer(player);
-        if (!slotKey) return;
-
-        stopTimer();
-        applyPick(player, slotKey);
+        handlePlayerClick(player);
       });
     });
   }
 
-  // =========================
-  // RENDER: ROSTERS (with click-to-select slot)
-  // =========================
-  function renderRosters() {
-    const count = game.playersCount;
+  function renderRosters(){
+    if (!elRostersWrap) return;
 
-    elRostersWrap.innerHTML = [1, 2]
-      .slice(0, count)
-      .map((owner) => renderRosterCard(owner))
-      .join("");
+    // winner highlight (versus end only)
+    const gameOver = (roundIndex >= TOTAL_ROUNDS);
+    const s1 = rosters[0].score;
+    const s2 = rosters[1].score;
+    const p1Winner = (mode === "two" && gameOver && s1 > s2);
+    const p2Winner = (mode === "two" && gameOver && s2 > s1);
 
-    // make slots clickable ONLY for the player who is on the clock
-    const owner = game.onClock;
-    const card = elRostersWrap.querySelector(`.rosterCard[data-owner="${owner}"]`);
-    if (card) {
-      card.querySelectorAll(".slotRow").forEach((row) => {
+    elRostersWrap.innerHTML = "";
+
+    const panels = (mode === "two") ? [0,1] : [0];
+
+    for (const i of panels){
+      const r = rosters[i];
+      const panel = document.createElement("div");
+      panel.className = "rosterPanel";
+      if (i === 0 && p1Winner) panel.classList.add("winner");
+      if (i === 1 && p2Winner) panel.classList.add("winner");
+
+      const top = document.createElement("div");
+      top.className = "rosterTop";
+      top.innerHTML = `
+        <div class="rosterName">${r.name}</div>
+        <div class="rosterScore">Score: ${r.score.toFixed(1)}</div>
+      `;
+      panel.appendChild(top);
+
+      r.slots.forEach(slot => {
+        const row = document.createElement("div");
+        row.className = "slotRow";
+        row.setAttribute("data-slot-idx", String(slot.idx));
+        row.setAttribute("data-roster", String(i));
+
+        const playerName = slot.player ? slot.player.name : "—";
+        const team = slot.player ? slot.player.team : "—";
+        const state = slot.filled ? "FILLED" : "OPEN";
+
+        row.innerHTML = `
+          <div class="slotPos">${slot.pos}</div>
+          <div class="slotPlayer">${escapeHtml(playerName)}</div>
+          <div class="slotTeam">${escapeHtml(team)}</div>
+          <div class="slotState ${slot.filled ? "filled" : ""}">${state}</div>
+        `;
+
+        // clicking a slot should:
+        // - filter list to that position
+        // - if Draft Position is AUTO, temporarily override just for this pick (then revert after pick)
         row.addEventListener("click", () => {
-          const slotKey = row.getAttribute("data-slot");
-          const slot = slotByKey(slotKey);
-          if (!slot) return;
-          if (game.rosters[owner][slotKey]) return; // already filled
+          // ignore clicks on FILLED slots
+          if (slot.filled) return;
 
-          // When Draft Position is AUTO:
-          // - override just for this pick, then back to AUTO after pick
-          if ((elDraftPos.value || "AUTO").toUpperCase() === "AUTO") {
-            overrideDraftPosOnce = slot.draftPos; // C/LW/RW/D/G/FLEX
+          // Only allow selecting a slot for the player who is currently on the clock
+          if (mode === "two" && i !== onClock) return;
+          if (mode === "single" && i !== 0) return;
+
+          clickedSlotOverride = slot.pos;
+
+          // Set Show Position dropdown:
+          if (slot.pos === "FLEX"){
+            // no FLEX in show dropdown; keep All but filter via slot override
+            if (elPosFilter) elPosFilter.value = "ALL";
           } else {
-            // If user manually set Draft Position, clicking slot just sets it to match
-            elDraftPos.value = slot.draftPos;
-            overrideDraftPosOnce = null;
+            if (elPosFilter) elPosFilter.value = slot.pos;
           }
 
-          // Also set Show Position to match (except FLEX shows ALL)
-          elPosFilter.value = slot.showPos;
-          showPosTempOverride = true;
+          // If Draft Position is AUTO, temporarily set Draft Position to this slot
+          if (elDraftPos && elDraftPos.value === "AUTO"){
+            elDraftPos.value = slot.pos;
+            usedTempDraftOverride = true;
+          }
 
           renderPlayers();
         });
+
+        panel.appendChild(row);
       });
+
+      elRostersWrap.appendChild(panel);
     }
-
-    updateScoresAndHighScore();
   }
 
-  function renderRosterCard(owner) {
-    const winnerClass =
-      (game.playersCount === 2 && game.winner === owner) ? " winner" : "";
-
-    const score = game.scores[owner];
-
-    // header row: include high score only in single
-    const highScoreHtml =
-      (game.playersCount === 1)
-        ? `<div class="hsWrap"><span>High Score: <b id="hsInline">${escapeHtml(elHighScore.textContent || "0")}</b></span></div>`
-        : "";
-
-    const rows = SLOTS.map((s) => {
-      const p = game.rosters[owner][s.key];
-      const status = p ? "FILLED" : "OPEN";
-      return `
-        <div class="slotRow ${p ? "filled" : "open"}" data-slot="${s.key}">
-          <div class="slotPos">${escapeHtml(s.label)}</div>
-          <div class="slotName">${p ? escapeHtml(p.name) : "—"}</div>
-          <div class="slotTeam">${p ? escapeHtml(p.team) : "—"}</div>
-          <div class="slotStatus">${status}</div>
-        </div>
-      `;
-    }).join("");
-
-    return `
-      <div class="rosterCard${winnerClass}" data-owner="${owner}">
-        <div class="rosterTop">
-          <div class="rosterTitle">Player ${owner}</div>
-          <div class="rosterScore">Score: ${fmt(score)}</div>
-          ${highScoreHtml}
-        </div>
-        <div class="slotsWrap">${rows}</div>
-      </div>
-    `;
+  function updateHighScoreUI(){
+    if (!elHighScore) return;
+    const hs = Number(localStorage.getItem(HS_KEY) || "0") || 0;
+    elHighScore.textContent = hs.toFixed(1);
   }
 
-  // =========================
-  // END GAME (winner highlight + message)
-  // =========================
-  function finalizeGame() {
-    stopTimer();
+  // ===== Picking Logic =====
+  function handlePlayerClick(player){
+    // Determine which slot index to fill
+    const roster = rosters[onClock];
+    if (!roster) return;
 
-    if (game.playersCount === 2) {
-      const p1 = game.scores[1];
-      const p2 = game.scores[2];
+    let targetSlotIdx = null;
 
-      if (p1 > p2) game.winner = 1;
-      else if (p2 > p1) game.winner = 2;
-      else game.winner = 0;
+    const draftChoice = elDraftPos?.value || "AUTO";
 
-      const winText = (game.winner === 0) ? "Tie Game" : `Player ${game.winner} Wins!`;
-
-      elStatus.textContent = `Game complete • ${winText}`;
-      elSubStatus.textContent = `Final: P1 ${fmt(p1)} — P2 ${fmt(p2)}`;
+    if (draftChoice === "AUTO"){
+      // If AUTO: choose first legal open slot based on player pos
+      targetSlotIdx = findFirstLegalSlotIdxForPlayer(roster, player);
     } else {
-      updateHighScoreIfNeeded();
-      elStatus.textContent = "Game complete";
-      elSubStatus.textContent = `Final Score: ${fmt(game.scores[1])}`;
+      // User specified a position:
+      // fill the first open slot matching that choice
+      targetSlotIdx = findFirstOpenSlotIdxOfType(roster, draftChoice);
+      // If they chose FLEX, must be C/LW/RW player
+      if (draftChoice === "FLEX" && !["C","LW","RW"].includes(player.pos)){
+        flashSubStatus("Illegal pick: FLEX accepts C/LW/RW only.");
+        return;
+      }
+      // If they chose D/G etc, must match
+      if (draftChoice !== "FLEX" && draftChoice !== player.pos){
+        flashSubStatus("Illegal pick for selected Draft Position.");
+        return;
+      }
     }
 
-    // IMPORTANT: keep last team/logo (no clearing) to avoid broken image at end
+    if (targetSlotIdx == null){
+      flashSubStatus("No open legal slot available for that player.");
+      return;
+    }
+
+    // Validate legality against the slot type
+    const slotType = roster.slots[targetSlotIdx].pos;
+    if (!isPlayerLegalForSlot(player, slotType)){
+      flashSubStatus("Illegal pick for that roster slot.");
+      return;
+    }
+
+    applyPick(player, targetSlotIdx, false);
+  }
+
+  function applyPick(player, slotIdx, wasAuto){
+    // Apply to roster
+    const roster = rosters[onClock];
+    const slot = roster.slots[slotIdx];
+    if (!slot || slot.filled) return;
+
+    // Prevent duplicates
+    if (usedPlayerIds.has(player.id)) return;
+
+    slot.filled = true;
+    slot.player = player;
+    roster.score += player.points;
+    usedPlayerIds.add(player.id);
+
+    // After ANY pick:
+    // - reset Show Position to All
+    // - reset Draft Position back to AUTO only if it was a temporary override
+    // - reset roster slot override filter
+    if (elPosFilter) elPosFilter.value = "ALL";
+    clickedSlotOverride = null;
+
+    if (usedTempDraftOverride && elDraftPos){
+      elDraftPos.value = "AUTO";
+      usedTempDraftOverride = false;
+    }
+
+    // If user had Draft Position set to a fixed non-AUTO, we leave it alone.
+
+    // Render
     renderRosters();
     renderPlayers();
+
+    // In single, update high score only at end; not here
+
+    // Advance game
+    timer = TURN_SECONDS;
+    if (elTimer) elTimer.textContent = `${timer}s`;
+
+    advanceTurnAfterPick();
   }
 
-  function updateScoresAndHighScore() {
-    if (game.playersCount === 1) {
-      updateHighScoreIfNeeded(false);
-      updateHighScoreUI();
+  function flashSubStatus(msg){
+    setSubStatus(msg);
+    setTimeout(() => {
+      updateHeader();
+    }, 1300);
+  }
+
+  function isPlayerLegalForSlot(player, slotType){
+    if (slotType === "FLEX"){
+      return ["C","LW","RW"].includes(player.pos);
     }
+    return player.pos === slotType;
   }
 
-  function updateHighScoreIfNeeded(allowWrite = true) {
-    if (game.playersCount !== 1) return;
-    const current = Number(game.scores[1] || 0);
-    const hs = Number(localStorage.getItem(STORAGE_KEY_HS) || 0);
-    if (allowWrite && current > hs) {
-      localStorage.setItem(STORAGE_KEY_HS, String(current.toFixed(1)));
+  function findFirstOpenSlotIdxOfType(roster, type){
+    if (type === "D"){
+      // first open D among the two D slots
+      const idx = roster.slots.findIndex(s => !s.filled && s.pos === "D");
+      return idx >= 0 ? idx : null;
     }
+    return findFirstOpenSlotIdxMatching(roster, s => !s.filled && s.pos === type);
   }
 
-  function updateHighScoreUI() {
-    elHighScore.textContent = localStorage.getItem(STORAGE_KEY_HS) || "0";
+  function findFirstLegalSlotIdxForPlayer(roster, player){
+    // Priority:
+    // 1) exact pos slots (C/LW/RW/D/G)
+    // 2) FLEX if skater and no exact slot available
+    const exactIdx = roster.slots.findIndex(s => !s.filled && s.pos === player.pos);
+    if (exactIdx >= 0) return exactIdx;
+
+    if (["C","LW","RW"].includes(player.pos)){
+      const flexIdx = roster.slots.findIndex(s => !s.filled && s.pos === "FLEX");
+      if (flexIdx >= 0) return flexIdx;
+    }
+    return null;
   }
 
-  // =========================
-  // TEAM BADGE
-  // =========================
-  function updateTeamBadge() {
-    elTeamAbbrev.textContent = currentTeam || "—";
-    const code = LOGO_MAP[currentTeam] || currentTeam;
-    elTeamLogo.src = `assets/logos/${code}.png`;
+  function findFirstOpenSlotIdxMatching(roster, predicate){
+    for (let i=0;i<roster.slots.length;i++){
+      if (predicate(roster.slots[i])) return i;
+    }
+    return null;
   }
 
-  // =========================
-  // HTML escape
-  // =========================
-  function escapeHtml(s) {
+  function eligiblePlayersFor(team, slotType){
+    let list = allPlayers.filter(p => p.team === team);
+    if (slotType === "FLEX"){
+      list = list.filter(p => ["C","LW","RW"].includes(p.pos));
+    } else {
+      list = list.filter(p => p.pos === slotType);
+    }
+    return list.filter(p => !usedPlayerIds.has(p.id));
+  }
+
+  // ===== Utils =====
+  function shuffle(arr){
+    const a = [...arr];
+    for (let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function escapeHtml(s){
     return String(s)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
-}
+})();
