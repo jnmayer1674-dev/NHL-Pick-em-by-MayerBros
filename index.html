@@ -6,20 +6,28 @@
   <title>NHL Pick’em by MayerBros</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="modePage">
-  <div class="modeCenter">
-    <div class="modeCard">
-      <div class="modeTitle">NHL Pick’em by MayerBros</div>
-      <div class="modeSub">Choose a game mode to begin</div>
-
-      <div class="modeButtons">
-        <a class="btn btn--big" href="game.html?mode=single">Single Player</a>
-        <a class="btn btn--big btn--ghost" href="game.html?mode=two">Versus </a>
+<body class="mode-select">
+  <div class="page">
+    <div class="card headerCard">
+      <div class="headerLeft">
+        <h1 class="title">NHL Pick’em by MayerBros</h1>
+        <div class="subtitle">Draft by team</div>
       </div>
 
-      <div class="modeNote">Draft by team • FLEX accepts C/LW/RW only</div>
+      <div class="qrBox">
+        <img class="qrImg" src="assets/qr.png" alt="QR code">
+        <div class="qrText">Scan to open<br>on phone or tablet</div>
+      </div>
+    </div>
+
+    <div class="card modalCard">
+      <div class="modalTitle">Choose a game mode to begin</div>
+      <div class="modalButtons">
+        <a class="btn btnPrimary" href="game.html?mode=single">Single Player</a>
+        <a class="btn btnPrimary" href="game.html?mode=two">Versus Mode</a>
+      </div>
+      <div class="modalFoot">FLEX accepts C/LW/RW only</div>
     </div>
   </div>
 </body>
 </html>
-
