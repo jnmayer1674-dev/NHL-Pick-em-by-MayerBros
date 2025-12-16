@@ -1,6 +1,7 @@
 // --- High Score Setup ---
 let highScore = Number(localStorage.getItem('highScore')) || 0;
 
+// DOM elements
 const p1ScoreEl = document.getElementById('p1Score');
 const highScoreEl = document.getElementById('singleHighScore');
 const resetBtn = document.getElementById('resetHighScore');
@@ -10,19 +11,25 @@ const modeScreen = document.getElementById('modeScreen');
 const rostersOne = document.getElementById('rostersOne');
 const rostersTwo = document.getElementById('rostersTwo');
 
+// --- Initialize High Score display ---
+function showHighScore() {
+  highScoreEl.textContent = `High Score: ${highScore}`;
+}
+showHighScore();
+
 // --- High Score Functions ---
 function updateHighScore(score) {
   if (score > highScore) {
     highScore = score;
     localStorage.setItem('highScore', highScore);
+    showHighScore();
   }
-  highScoreEl.textContent = `High Score: ${highScore}`;
 }
 
 function resetHighScore() {
   highScore = 0;
   localStorage.removeItem('highScore');
-  highScoreEl.textContent = `High Score: 0`;
+  showHighScore();
 }
 
 resetBtn.addEventListener('click', resetHighScore);
@@ -45,21 +52,23 @@ document.getElementById('startVersus').addEventListener('click', () => {
 });
 
 // --- Example: Update Player 1 Score ---
-// Call this function whenever P1 score changes
+let p1Score = 0;
 function updatePlayer1Score(points) {
-  p1ScoreEl.innerHTML = `Score: ${points}<br /><span id="singleHighScore" class="high-score">High Score: ${highScore}</span>`;
-  updateHighScore(points);
+  p1Score = points;
+  p1ScoreEl.firstChild.textContent = `Score: ${p1Score}\n`;
+  updateHighScore(p1Score);
 }
 
 // --- New Game Button ---
-// Resets player scores but keeps high score
 document.getElementById('btnNewGame').addEventListener('click', () => {
   if (!rostersOne.classList.contains('hidden')) {
-    p1ScoreEl.innerHTML = `Score: 0<br /><span id="singleHighScore" class="high-score">High Score: ${highScore}</span>`;
+    p1Score = 0;
+    p1ScoreEl.firstChild.textContent = `Score: ${p1Score}\n`;
+    showHighScore();
   }
   if (!rostersTwo.classList.contains('hidden')) {
     document.getElementById('p1Score2').textContent = 'Score: 0';
     document.getElementById('p2Score').textContent = 'Score: 0';
   }
-  // Add logic here to reset rosters and player slots as needed
+  // TODO: reset rosters/slots if needed
 });
