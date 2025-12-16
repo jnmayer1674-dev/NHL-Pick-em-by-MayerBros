@@ -90,9 +90,8 @@ function boot() {
   const urlMode = (new URLSearchParams(window.location.search).get("mode") || "single").toLowerCase();
   gameMode = (urlMode === "two" || urlMode === "versus" || urlMode === "vs") ? MODE_TWO : MODE_SINGLE;
 
-  // ✅ Events
+  // Events
   elModeBtn.addEventListener("click", () => {
-    // Force-reset UI controls before leaving
     try {
       elPosFilter.value = "ALL";
       elDraftPos.value = "AUTO";
@@ -103,7 +102,6 @@ function boot() {
   });
 
   elNewBtn.addEventListener("click", () => {
-    // Force-reset UI controls before new game
     try {
       elPosFilter.value = "ALL";
       elDraftPos.value = "AUTO";
@@ -223,7 +221,7 @@ function boot() {
     remainingTeams = shuffle(uniqueTeams(availablePlayers));
     currentTeam = null;
 
-    // ✅ always reset filters on new game
+    // always reset filters on new game
     elDraftPos.value = "AUTO";
     elPosFilter.value = "ALL";
     elSearch.value = "";
@@ -290,6 +288,10 @@ function boot() {
 
     if (!legal.length) {
       resetTempPosFilterIfNeeded();
+      // ✅ also reset Draft Position after a “no pick” timer event (keeps UI clean)
+      elDraftPos.value = "AUTO";
+      autoOverrideActive = false;
+
       currentPickIndex++;
       nextPick();
       return;
@@ -313,11 +315,11 @@ function boot() {
 
     selectedSlotKeyByPlayer[owner] = null;
 
-    if (autoOverrideActive) {
-      elDraftPos.value = "AUTO";
-      autoOverrideActive = false;
-    }
+    // ✅ ALWAYS reset Draft Position to AUTO after any successful pick
+    elDraftPos.value = "AUTO";
+    autoOverrideActive = false;
 
+    // reset Show Position back to ALL if roster click temp override was used
     resetTempPosFilterIfNeeded();
 
     currentPickIndex++;
@@ -535,12 +537,12 @@ function boot() {
   }
 
   function getHighScore() {
-    const v = Number(localStorage.getItem(STORAGE_KEY_HS) || "0");
+    const v = Number(localStorage.getItem("nhl_pickem_highscore_v8") || "0");
     return Number.isFinite(v) ? v : 0;
   }
 
   function setHighScore(val) {
-    localStorage.setItem(STORAGE_KEY_HS, String(val || 0));
+    localStorage.setItem("nhl_pickem_highscore_v8", String(val || 0));
   }
 
   function makeEmptyRoster() {
