@@ -5,20 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NHL Pick’em by MayerBros</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* Minimal inline styles to ensure usability */
-    .hidden { display: none; }
-    .selected { background-color: #def; }
-    .illegal { color: #999; cursor: not-allowed; }
-    .right { text-align: right; }
-    .pts-col { width: 50px; }
-    .slot-row { display: flex; gap: 10px; cursor: pointer; padding: 4px 0; }
-    .slot-tag { width: 50px; font-weight: bold; }
-    .slot-name { flex: 1; }
-    .slot-team { width: 40px; }
-    .slot-status { width: 60px; text-align: center; }
-    .team-logo { width: 40px; height: 40px; object-fit: contain; }
-  </style>
 </head>
 
 <body>
@@ -27,14 +13,22 @@
     <header class="top">
       <div class="brand">
         <h1 class="title">NHL Pick’em by MayerBros</h1>
-        <div class="subtitle">Draft by team • Blind draft</div>
+        <div class="subtitle">Draft by team • Blind draft </div>
       </div>
     </header>
+
+    <!-- HIGH SCORE DISPLAY -->
+    <section class="card">
+      <h2 class="card-title">High Score</h2>
+      <div class="hint">Your best single-player score is always saved here.</div>
+      <div id="singleHighScore" class="high-score">High Score: 0</div>
+    </section>
 
     <!-- MODE SELECT -->
     <section id="modeScreen" class="card mode-card">
       <h2 class="card-title">Choose Game Mode</h2>
       <div class="hint">Pick one. You can change modes later.</div>
+
       <div class="mode-buttons">
         <button id="startSingle" class="btn btn-primary" type="button">Start Single Player</button>
         <button id="startVersus" class="btn" type="button">Start 2 Player Versus</button>
@@ -118,21 +112,18 @@
             <div id="winnerLine" class="hint"></div>
           </div>
 
-          <!-- Single Player Roster -->
           <div id="rostersOne" class="rosters hidden">
             <div class="roster">
               <div class="roster-head">
                 <div class="roster-title">Player 1</div>
                 <div id="p1Score" class="roster-score">
-                  Score: 0<br />
-                  <span id="singleHighScore" class="high-score">High Score: 0</span>
+                  Score: 0
                 </div>
               </div>
               <div id="p1Slots" class="slots"></div>
             </div>
           </div>
 
-          <!-- Versus Roster -->
           <div id="rostersTwo" class="rosters hidden">
             <div class="roster">
               <div class="roster-head">
