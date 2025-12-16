@@ -13,25 +13,12 @@
       <div class="modeSub">Choose a game mode to begin</div>
 
       <div class="modeButtons">
-        <button class="btn btn--big" id="goSingle">Single Player</button>
-        <button class="btn btn--big btn--ghost" id="goTwo">Versus (2 Player)</button>
+        <a class="btn btn--big" href="game.html?mode=single">Single Player</a>
+        <a class="btn btn--big btn--ghost" href="game.html?mode=two">Versus (2 Player)</a>
       </div>
 
       <div class="modeNote">Draft by team • FLEX accepts C/LW/RW only</div>
     </div>
   </div>
-
-  <script>
-    // Go to the game page with the chosen mode in the URL
-    const base = new URL("game.html", window.location.href);
-    document.getElementById("goSingle").addEventListener("click", () => {
-      base.searchParams.set("mode", "single");
-      window.location.href = base.toString();
-    });
-    document.getElementById("goTwo").addEventListener("click", () => {
-      base.searchParams.set("mode", "two");
-      window.location.href = base.toString();
-    });
-  </script>
 </body>
 </html>
