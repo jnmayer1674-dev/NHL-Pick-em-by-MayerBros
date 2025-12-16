@@ -8,7 +8,7 @@ const TEAM_TO_LOGO = {
   MIN:"MIN", MTL:"MTL", NJD:"NJ", NJ:"NJ", NSH:"NSH", NYI:"NYI", NYR:"NYR",
   OTT:"OTT", PHI:"PHI", PIT:"PIT", SEA:"SEA", SJS:"SJ", SJ:"SJ", STL:"STL",
   TBL:"TB", TB:"TB", TOR:"TOR", VAN:"VAN", VGK:"VGK", WPG:"WPG", WSH:"WSH",
-  UTAH:"UTAH", ARI:"UTAH"
+  UTAH:"UTA", ARI:"UTA"
 };
 
 const el = {
@@ -490,3 +490,4 @@ function hookUI(){
     el.emptyMsg.classList.remove("hidden");
   }
 })();
+
