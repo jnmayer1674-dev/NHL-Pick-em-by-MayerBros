@@ -1,808 +1,531 @@
 (() => {
-  // ===== Config =====
-  const ROSTER_SLOTS = ["C","LW","RW","D","D","G","FLEX","FLEX"];
-  const TOTAL_ROUNDS = 8;
-  const TURN_SECONDS = 30;
+  const $ = (id) => document.getElementById(id);
 
-  const LOGO_BASE = "assets/logos/";
-  const DEFAULT_LOGO = ""; // if blank, we just keep last valid logo
+  const statusText = $("statusText");
+  const timerText = $("timerText");
+  const teamLogo = $("teamLogo");
+  const playersTbody = $("playersTbody");
+  const rostersWrap = $("rostersWrap");
+  const draftPositionSelect = $("draftPositionSelect");
+  const showPositionSelect = $("showPositionSelect");
+  const searchInput = $("searchInput");
+  const dataStamp = $("dataStamp");
+  const errorBar = $("errorBar");
+  const newGameBtn = $("newGameBtn");
+  const changeModeBtn = $("changeModeBtn");
+  const roundText = $("roundText");
 
-  const HS_KEY = "nhl_pickem_highscore_v1";
+  // If app.js gets loaded on index.html by accident, exit safely.
+  if (!statusText || !rostersWrap) return;
 
-  // ===== DOM =====
-  const elStatus = document.getElementById("statusLine");
-  const elSubStatus = document.getElementById("subStatusLine");
-  const elBtnMode = document.getElementById("btnMode");
-  const elBtnNew = document.getElementById("btnNew");
+  const SLOTS = ["C", "LW", "RW", "D", "D", "G", "FLEX", "FLEX"];
+  const FLEX_OK = new Set(["C", "LW", "RW"]);
 
-  const elTeamLogo = document.getElementById("teamLogo");
-  const elTeamAbbrev = document.getElementById("teamAbbrev");
-  const elTimer = document.getElementById("timer");
-
-  const elDraftPos = document.getElementById("draftPos");
-  const elPosFilter = document.getElementById("posFilter");
-  const elSearch = document.getElementById("search");
-  const elStamp = document.getElementById("dataStamp");
-
-  const elPlayersTbody = document.getElementById("playersTbody");
-  const elErrorBox = document.getElementById("errorBox");
-
-  const elRostersWrap = document.getElementById("rostersWrap");
-
-  const elSingleExtras = document.getElementById("singleExtras");
-  const elHighScore = document.getElementById("highScore");
-  const elBtnResetHS = document.getElementById("btnResetHS");
-
-  // ===== State =====
-  let mode = "single"; // 'single' | 'two'
-  let allPlayers = [];
-  let usedPlayerIds = new Set(); // prevent drafting same player twice
-
-  let availableTeams = []; // shuffled once per game
-  let usedTeams = new Set();
-
-  let roundIndex = 0; // 0..7
-  let pickInRound = 0; // 0 or 1 (two picks per round in both modes)
-  let onClock = 0; // player index 0/1
-
-  let timer = TURN_SECONDS;
-  let timerHandle = null;
-
-  // selection UX
-  let clickedSlotOverride = null;     // e.g. "D" (from roster click)
-  let usedTempDraftOverride = false; // only when Draft Position was AUTO and slot was clicked
-
-  // logo fallback
-  let lastGoodLogoSrc = "";
-
-  // rosters
-  const rosters = [
-    makeEmptyRoster("Player 1"),
-    makeEmptyRoster("Player 2")
+  const TEAMS = [
+    "ANA","BOS","BUF","CAR","CBJ","CGY","CHI","COL","DAL","DET","EDM",
+    "FLA","LAK","MIN","MTL","NJD","NSH","NYI","NYR","OTT","PHI","PIT",
+    "SEA","SJS","STL","TBL","TOR","UTA","VAN","VGK","WPG","WSH"
   ];
 
-  function makeEmptyRoster(name){
-    return {
-      name,
-      slots: ROSTER_SLOTS.map((pos, idx) => ({
-        idx,
-        pos,
-        filled: false,
-        player: null
-      })),
-      score: 0
-    };
+  function nowStamp() {
+    return new Date().toISOString().replace("T", " ").slice(0, 19);
   }
 
-  // ===== Boot =====
-  init();
-
-  async function init(){
-    // mode from URL
-    const params = new URLSearchParams(location.search);
-    const m = params.get("mode");
-    mode = (m === "two") ? "two" : "single";
-
-    document.body.classList.toggle("mode-two", mode === "two");
-    document.body.classList.toggle("mode-single", mode === "single");
-
-    // single extras visibility
-    if (elSingleExtras){
-      elSingleExtras.style.display = (mode === "single") ? "flex" : "none";
-    }
-
-    // buttons
-    elBtnMode?.addEventListener("click", () => {
-      // go back to main menu
-      window.location.href = "index.html";
-    });
-
-    elBtnNew?.addEventListener("click", () => {
-      resetFilters(true);
-      startNewGame();
-    });
-
-    elDraftPos?.addEventListener("change", () => {
-      // user manually changes it; no extra state needed
-      renderPlayers();
-    });
-
-    elPosFilter?.addEventListener("change", () => renderPlayers());
-    elSearch?.addEventListener("input", () => renderPlayers());
-
-    elBtnResetHS?.addEventListener("click", () => {
-      localStorage.setItem(HS_KEY, "0");
-      updateHighScoreUI();
-    });
-
-    // load players
-    await loadPlayers();
-
-    // build rosters UI
-    renderRosters();
-
-    // load high score
-    updateHighScoreUI();
-
-    // start game
-    startNewGame();
-  }
-
-  function showError(msg){
-    if (!elErrorBox) return;
-    elErrorBox.textContent = msg;
-    elErrorBox.classList.remove("hidden");
-  }
-  function clearError(){
-    if (!elErrorBox) return;
-    elErrorBox.classList.add("hidden");
-    elErrorBox.textContent = "";
-  }
-
-  async function loadPlayers(){
-    clearError();
-    try{
-      const res = await fetch("data/players.json", { cache: "no-store" });
-      if (!res.ok) throw new Error(`Could not load data/players.json (HTTP ${res.status})`);
-      const data = await res.json();
-
-      // Handle: array, {players:[...]}, {data:[...]}, or map/object
-      let raw = null;
-      if (Array.isArray(data)) raw = data;
-      else if (data && Array.isArray(data.players)) raw = data.players;
-      else if (data && Array.isArray(data.data)) raw = data.data;
-      else if (data && typeof data === "object") raw = Object.values(data);
-      else raw = [];
-
-      // normalize into consistent shape
-      allPlayers = raw
-        .map((p, i) => normalizePlayer(p, i))
-        .filter(p => p && p.name && p.team && p.pos);
-
-      if (!allPlayers.length){
-        showError("No players loaded. Check that data/players.json contains an array of players (or {players:[...]}).");
-      }
-
-      // stamp
-      const now = new Date().toISOString();
-      elStamp.textContent = `Data: ${now}`;
-
-      renderPlayers();
-    }catch(err){
-      showError(err.message || String(err));
-      elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">No players loaded yet. Make sure players.json is in the data folder.</td></tr>`;
-    }
-  }
-
-  function normalizePlayer(p, fallbackId){
-    if (!p || typeof p !== "object") return null;
-
-    // common field names
-    const name = p.name ?? p.player ?? p.fullName ?? p.Player ?? "";
-    const team = (p.team ?? p.Team ?? p.abbrev ?? p.teamAbbrev ?? "").toString().toUpperCase().trim();
-    const posRaw = (p.pos ?? p.position ?? p.Pos ?? "").toString().toUpperCase().trim();
-
-    // fantasy points field names supported
-    const ptsVal = p.points ?? p.draftPoints ?? p.fantasyPoints ?? p.fp ?? p.FP ?? 0;
-    const points = Number(ptsVal) || 0;
-
-    // ID to dedupe
-    const id = (p.id ?? p.playerId ?? p.pid ?? `${name}|${team}|${posRaw}|${fallbackId}`).toString();
-
-    // normalize positions (sometimes "C/LW" etc — take first)
-    let pos = posRaw;
-    if (pos.includes("/")) pos = pos.split("/")[0].trim();
-    if (pos === "LD" || pos === "RD") pos = "D";
-    if (pos === "G" || pos === "GK") pos = "G";
-
-    return {
-      id,
-      name: String(name).trim(),
-      team,
-      pos,
-      points
-    };
-  }
-
-  // ===== Game Start / Flow =====
-  function startNewGame(){
-    stopTimer();
-
-    // reset state
-    usedPlayerIds = new Set();
-    usedTeams = new Set();
-
-    roundIndex = 0;
-    pickInRound = 0;
-    onClock = 0;
-
-    // reset rosters
-    rosters[0] = makeEmptyRoster("Player 1");
-    rosters[1] = makeEmptyRoster("Player 2");
-
-    // shuffle teams from data
-    availableTeams = shuffle(uniqueTeamsFromPlayers(allPlayers));
-    if (!availableTeams.length){
-      setStatus("No teams available (data issue).");
-      renderRosters();
-      renderPlayers();
-      return;
-    }
-
-    // clear selection UX
-    clickedSlotOverride = null;
-    usedTempDraftOverride = false;
-
-    // reset filters (Show Position All, Search blank, DraftPos AUTO)
-    resetFilters(true);
-
-    // set first team
-    setCurrentTeamForRound();
-
-    // render
-    renderRosters();
-    renderPlayers();
-
-    // start timer
-    timer = TURN_SECONDS;
-    startTimer();
-
-    updateHeader();
-  }
-
-  function resetFilters(resetDraftPosToo){
-    // reset Show Position & Search always
-    if (elPosFilter) elPosFilter.value = "ALL";
-    if (elSearch) elSearch.value = "";
-    clickedSlotOverride = null;
-
-    if (resetDraftPosToo && elDraftPos){
-      elDraftPos.value = "AUTO";
-      usedTempDraftOverride = false;
-    }
-    renderPlayers();
-  }
-
-  function updateHeader(extraMsg=""){
-    const team = getCurrentTeam();
-    const roundText = `Round ${roundIndex + 1} of ${TOTAL_ROUNDS}`;
-    const pickText = `Pick ${roundIndex * 2 + pickInRound + 1} of ${TOTAL_ROUNDS * 2}`;
-    const modeText = (mode === "two") ? "Versus" : "Single";
-
-    const onClockName = (mode === "two") ? rosters[onClock].name : "Player 1";
-
-    setStatus(`Mode: ${modeText} • ${roundText} • ${pickText} • Team: ${team}`);
-    setSubStatus(`On the clock: ${onClockName}. Choose Draft Position then click a player.`);
-    if (extraMsg) setSubStatus(extraMsg);
-
-    setTeamBadge(team);
-  }
-
-  function setStatus(text){
-    if (elStatus) elStatus.textContent = text;
-  }
-  function setSubStatus(text){
-    if (elSubStatus) elSubStatus.textContent = text;
-  }
-
-  function setTeamBadge(team){
-    if (elTeamAbbrev) elTeamAbbrev.textContent = team;
-
-    const src = logoForTeam(team);
-
-    // keep last good logo instead of broken at end
-    if (src){
-      elTeamLogo.src = src;
-      elTeamLogo.onerror = () => {
-        // revert to last good; if none, hide
-        if (lastGoodLogoSrc){
-          elTeamLogo.src = lastGoodLogoSrc;
-        } else {
-          elTeamLogo.removeAttribute("src");
-        }
-      };
-      lastGoodLogoSrc = src;
-    } else {
-      // if we don't have a source, keep lastGoodLogoSrc
-      if (lastGoodLogoSrc){
-        elTeamLogo.src = lastGoodLogoSrc;
-      } else {
-        elTeamLogo.removeAttribute("src");
-      }
-    }
-  }
-
-  function logoForTeam(team){
-    if (!team) return "";
-    return `${LOGO_BASE}${team}.png`;
-  }
-
-  function uniqueTeamsFromPlayers(players){
-    const s = new Set();
-    for (const p of players){
-      if (p.team) s.add(p.team.toUpperCase());
-    }
-    return [...s];
-  }
-
-  function setCurrentTeamForRound(){
-    // each round uses a single team, used once per game
-    const next = availableTeams.find(t => !usedTeams.has(t));
-    if (!next){
-      // no more teams; end game
-      finishGame();
-      return;
-    }
-    usedTeams.add(next);
-    // store on window for easy access
-    window.__currentRoundTeam = next;
-  }
-
-  function getCurrentTeam(){
-    return window.__currentRoundTeam || "—";
-  }
-
-  function advanceTurnAfterPick(){
-    // After any pick: reset Show Position to All and clear slot click override
-    if (elPosFilter) elPosFilter.value = "ALL";
-    clickedSlotOverride = null;
-
-    // Also: if Draft Position was AUTO and we temporarily overrode it via slot-click,
-    // revert it back to AUTO now.
-    if (usedTempDraftOverride && elDraftPos){
-      elDraftPos.value = "AUTO";
-      usedTempDraftOverride = false;
-    }
-
-    // advance pick
-    pickInRound++;
-
-    if (mode === "two"){
-      // two picks per round; snake who picks first each round
-      // odd rounds: P1 first, even rounds: P2 first
-      if (pickInRound === 1){
-        // second pick of round
-        onClock = (roundIndex % 2 === 0) ? 1 : 0;
-      } else {
-        // round over
-        roundIndex++;
-        pickInRound = 0;
-
-        if (roundIndex >= TOTAL_ROUNDS){
-          finishGame();
-          return;
-        }
-        // new round team
-        setCurrentTeamForRound();
-
-        // first picker next round (snake)
-        onClock = (roundIndex % 2 === 0) ? 0 : 1;
-      }
-    } else {
-      // single: always player 1, but still 2 picks per round for "team by team" cadence
-      if (pickInRound >= 2){
-        roundIndex++;
-        pickInRound = 0;
-
-        if (roundIndex >= TOTAL_ROUNDS){
-          finishGame();
-          return;
-        }
-        setCurrentTeamForRound();
-      }
-      onClock = 0;
-    }
-
-    // reset timer each pick
-    timer = TURN_SECONDS;
-    renderPlayers();
-    renderRosters();
-    updateHeader();
-  }
-
-  function finishGame(){
-    stopTimer();
-    renderPlayers();
-    renderRosters();
-
-    if (mode === "single"){
-      const score = rosters[0].score;
-      setStatus("Game complete.");
-      setSubStatus(`Final: ${score.toFixed(1)}`);
-
-      // high score update
-      const hs = Number(localStorage.getItem(HS_KEY) || "0") || 0;
-      if (score > hs){
-        localStorage.setItem(HS_KEY, String(score));
-        updateHighScoreUI();
-      }
-
-      // keep last logo (do nothing to logo)
-      return;
-    }
-
-    // Versus: declare winner + highlight
-    const s1 = rosters[0].score;
-    const s2 = rosters[1].score;
-
-    let msg = `Final: P1 ${s1.toFixed(1)} — P2 ${s2.toFixed(1)}`;
-    if (s1 > s2) msg += " • Winner: Player 1 🏆";
-    else if (s2 > s1) msg += " • Winner: Player 2 🏆";
-    else msg += " • Tie 🤝";
-
-    setStatus("Game complete.");
-    setSubStatus(msg);
-
-    // winner highlight applied in renderRosters()
-  }
-
-  // ===== Timer =====
-  function startTimer(){
-    stopTimer();
-    timerHandle = setInterval(() => {
-      timer--;
-      if (timer < 0) timer = 0;
-      if (elTimer) elTimer.textContent = `${timer}s`;
-
-      if (timer === 0){
-        // auto-pick first open slot with random legal player
-        autoPick();
-      }
-    }, 1000);
-    if (elTimer) elTimer.textContent = `${timer}s`;
-  }
-
-  function stopTimer(){
-    if (timerHandle){
-      clearInterval(timerHandle);
-      timerHandle = null;
-    }
-  }
-
-  function autoPick(){
-    // prevent repeated auto picks at 0
-    if (!timerHandle) return;
-
-    // pick a slot
-    const roster = rosters[onClock];
-    const firstOpen = roster.slots.find(s => !s.filled);
-    if (!firstOpen){
-      // roster full
-      advanceTurnAfterPick();
-      return;
-    }
-
-    const team = getCurrentTeam();
-    const pool = eligiblePlayersFor(team, firstOpen.pos)
-      .filter(p => !usedPlayerIds.has(p.id));
-
-    if (!pool.length){
-      // if no legal player for that slot/team, try next open slots
-      const openSlots = roster.slots.filter(s => !s.filled);
-      for (const s of openSlots){
-        const pool2 = eligiblePlayersFor(team, s.pos).filter(p => !usedPlayerIds.has(p.id));
-        if (pool2.length){
-          const pick = pool2[Math.floor(Math.random() * pool2.length)];
-          applyPick(pick, s.idx, true);
-          return;
-        }
-      }
-      // no legal players at all for this team -> advance
-      advanceTurnAfterPick();
-      return;
-    }
-
-    const player = pool[Math.floor(Math.random() * pool.length)];
-    applyPick(player, firstOpen.idx, true);
-  }
-
-  // ===== Rendering =====
-  function renderPlayers(){
-    if (!elPlayersTbody) return;
-
-    const team = getCurrentTeam();
-    const search = (elSearch?.value || "").trim().toLowerCase();
-    const showPos = elPosFilter?.value || "ALL";
-
-    // If user clicked a roster slot while Draft Position is AUTO, filter list to that slot's legal positions.
-    const slotFilter = clickedSlotOverride;
-
-    let list = allPlayers.filter(p => p.team === team);
-    list = list.filter(p => !usedPlayerIds.has(p.id));
-
-    // show position dropdown filter
-    if (showPos !== "ALL"){
-      list = list.filter(p => p.pos === showPos);
-    }
-
-    // roster slot click filter (stronger filter)
-    if (slotFilter){
-      if (slotFilter === "FLEX"){
-        list = list.filter(p => ["C","LW","RW"].includes(p.pos));
-      } else {
-        list = list.filter(p => p.pos === slotFilter);
-      }
-    }
-
-    if (search){
-      list = list.filter(p => p.name.toLowerCase().includes(search));
-    }
-
-    // sort by points desc
-    list.sort((a,b) => (b.points - a.points) || a.name.localeCompare(b.name));
-
-    if (!list.length){
-      elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">No eligible players for this team/filters.</td></tr>`;
-      return;
-    }
-
-    const rows = list.slice(0, 300).map(p => {
-      return `
-        <tr data-pid="${escapeHtml(p.id)}">
-          <td>${escapeHtml(p.name)}</td>
-          <td>${escapeHtml(p.pos)}</td>
-          <td>${escapeHtml(p.team)}</td>
-        </tr>
-      `;
-    }).join("");
-
-    elPlayersTbody.innerHTML = rows;
-
-    // click handlers
-    [...elPlayersTbody.querySelectorAll("tr[data-pid]")].forEach(tr => {
-      tr.addEventListener("click", () => {
-        const pid = tr.getAttribute("data-pid");
-        const player = allPlayers.find(x => x.id === pid);
-        if (!player) return;
-        handlePlayerClick(player);
-      });
-    });
-  }
-
-  function renderRosters(){
-    if (!elRostersWrap) return;
-
-    // winner highlight (versus end only)
-    const gameOver = (roundIndex >= TOTAL_ROUNDS);
-    const s1 = rosters[0].score;
-    const s2 = rosters[1].score;
-    const p1Winner = (mode === "two" && gameOver && s1 > s2);
-    const p2Winner = (mode === "two" && gameOver && s2 > s1);
-
-    elRostersWrap.innerHTML = "";
-
-    const panels = (mode === "two") ? [0,1] : [0];
-
-    for (const i of panels){
-      const r = rosters[i];
-      const panel = document.createElement("div");
-      panel.className = "rosterPanel";
-      if (i === 0 && p1Winner) panel.classList.add("winner");
-      if (i === 1 && p2Winner) panel.classList.add("winner");
-
-      const top = document.createElement("div");
-      top.className = "rosterTop";
-      top.innerHTML = `
-        <div class="rosterName">${r.name}</div>
-        <div class="rosterScore">Score: ${r.score.toFixed(1)}</div>
-      `;
-      panel.appendChild(top);
-
-      r.slots.forEach(slot => {
-        const row = document.createElement("div");
-        row.className = "slotRow";
-        row.setAttribute("data-slot-idx", String(slot.idx));
-        row.setAttribute("data-roster", String(i));
-
-        const playerName = slot.player ? slot.player.name : "—";
-        const team = slot.player ? slot.player.team : "—";
-        const state = slot.filled ? "FILLED" : "OPEN";
-
-        row.innerHTML = `
-          <div class="slotPos">${slot.pos}</div>
-          <div class="slotPlayer">${escapeHtml(playerName)}</div>
-          <div class="slotTeam">${escapeHtml(team)}</div>
-          <div class="slotState ${slot.filled ? "filled" : ""}">${state}</div>
-        `;
-
-        // clicking a slot should:
-        // - filter list to that position
-        // - if Draft Position is AUTO, temporarily override just for this pick (then revert after pick)
-        row.addEventListener("click", () => {
-          // ignore clicks on FILLED slots
-          if (slot.filled) return;
-
-          // Only allow selecting a slot for the player who is currently on the clock
-          if (mode === "two" && i !== onClock) return;
-          if (mode === "single" && i !== 0) return;
-
-          clickedSlotOverride = slot.pos;
-
-          // Set Show Position dropdown:
-          if (slot.pos === "FLEX"){
-            // no FLEX in show dropdown; keep All but filter via slot override
-            if (elPosFilter) elPosFilter.value = "ALL";
-          } else {
-            if (elPosFilter) elPosFilter.value = slot.pos;
-          }
-
-          // If Draft Position is AUTO, temporarily set Draft Position to this slot
-          if (elDraftPos && elDraftPos.value === "AUTO"){
-            elDraftPos.value = slot.pos;
-            usedTempDraftOverride = true;
-          }
-
-          renderPlayers();
-        });
-
-        panel.appendChild(row);
-      });
-
-      elRostersWrap.appendChild(panel);
-    }
-  }
-
-  function updateHighScoreUI(){
-    if (!elHighScore) return;
-    const hs = Number(localStorage.getItem(HS_KEY) || "0") || 0;
-    elHighScore.textContent = hs.toFixed(1);
-  }
-
-  // ===== Picking Logic =====
-  function handlePlayerClick(player){
-    // Determine which slot index to fill
-    const roster = rosters[onClock];
-    if (!roster) return;
-
-    let targetSlotIdx = null;
-
-    const draftChoice = elDraftPos?.value || "AUTO";
-
-    if (draftChoice === "AUTO"){
-      // If AUTO: choose first legal open slot based on player pos
-      targetSlotIdx = findFirstLegalSlotIdxForPlayer(roster, player);
-    } else {
-      // User specified a position:
-      // fill the first open slot matching that choice
-      targetSlotIdx = findFirstOpenSlotIdxOfType(roster, draftChoice);
-      // If they chose FLEX, must be C/LW/RW player
-      if (draftChoice === "FLEX" && !["C","LW","RW"].includes(player.pos)){
-        flashSubStatus("Illegal pick: FLEX accepts C/LW/RW only.");
-        return;
-      }
-      // If they chose D/G etc, must match
-      if (draftChoice !== "FLEX" && draftChoice !== player.pos){
-        flashSubStatus("Illegal pick for selected Draft Position.");
-        return;
-      }
-    }
-
-    if (targetSlotIdx == null){
-      flashSubStatus("No open legal slot available for that player.");
-      return;
-    }
-
-    // Validate legality against the slot type
-    const slotType = roster.slots[targetSlotIdx].pos;
-    if (!isPlayerLegalForSlot(player, slotType)){
-      flashSubStatus("Illegal pick for that roster slot.");
-      return;
-    }
-
-    applyPick(player, targetSlotIdx, false);
-  }
-
-  function applyPick(player, slotIdx, wasAuto){
-    // Apply to roster
-    const roster = rosters[onClock];
-    const slot = roster.slots[slotIdx];
-    if (!slot || slot.filled) return;
-
-    // Prevent duplicates
-    if (usedPlayerIds.has(player.id)) return;
-
-    slot.filled = true;
-    slot.player = player;
-    roster.score += player.points;
-    usedPlayerIds.add(player.id);
-
-    // After ANY pick:
-    // - reset Show Position to All
-    // - reset Draft Position back to AUTO only if it was a temporary override
-    // - reset roster slot override filter
-    if (elPosFilter) elPosFilter.value = "ALL";
-    clickedSlotOverride = null;
-
-    if (usedTempDraftOverride && elDraftPos){
-      elDraftPos.value = "AUTO";
-      usedTempDraftOverride = false;
-    }
-
-    // If user had Draft Position set to a fixed non-AUTO, we leave it alone.
-
-    // Render
-    renderRosters();
-    renderPlayers();
-
-    // In single, update high score only at end; not here
-
-    // Advance game
-    timer = TURN_SECONDS;
-    if (elTimer) elTimer.textContent = `${timer}s`;
-
-    advanceTurnAfterPick();
-  }
-
-  function flashSubStatus(msg){
-    setSubStatus(msg);
-    setTimeout(() => {
-      updateHeader();
-    }, 1300);
-  }
-
-  function isPlayerLegalForSlot(player, slotType){
-    if (slotType === "FLEX"){
-      return ["C","LW","RW"].includes(player.pos);
-    }
-    return player.pos === slotType;
-  }
-
-  function findFirstOpenSlotIdxOfType(roster, type){
-    if (type === "D"){
-      // first open D among the two D slots
-      const idx = roster.slots.findIndex(s => !s.filled && s.pos === "D");
-      return idx >= 0 ? idx : null;
-    }
-    return findFirstOpenSlotIdxMatching(roster, s => !s.filled && s.pos === type);
-  }
-
-  function findFirstLegalSlotIdxForPlayer(roster, player){
-    // Priority:
-    // 1) exact pos slots (C/LW/RW/D/G)
-    // 2) FLEX if skater and no exact slot available
-    const exactIdx = roster.slots.findIndex(s => !s.filled && s.pos === player.pos);
-    if (exactIdx >= 0) return exactIdx;
-
-    if (["C","LW","RW"].includes(player.pos)){
-      const flexIdx = roster.slots.findIndex(s => !s.filled && s.pos === "FLEX");
-      if (flexIdx >= 0) return flexIdx;
-    }
-    return null;
-  }
-
-  function findFirstOpenSlotIdxMatching(roster, predicate){
-    for (let i=0;i<roster.slots.length;i++){
-      if (predicate(roster.slots[i])) return i;
-    }
-    return null;
-  }
-
-  function eligiblePlayersFor(team, slotType){
-    let list = allPlayers.filter(p => p.team === team);
-    if (slotType === "FLEX"){
-      list = list.filter(p => ["C","LW","RW"].includes(p.pos));
-    } else {
-      list = list.filter(p => p.pos === slotType);
-    }
-    return list.filter(p => !usedPlayerIds.has(p.id));
-  }
-
-  // ===== Utils =====
-  function shuffle(arr){
+  function shuffle(arr) {
     const a = [...arr];
-    for (let i=a.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
   }
 
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+  function teamLogoPath(teamAbbr) {
+    if (!teamAbbr) return "";
+    return `assets/logos/${teamAbbr.toUpperCase()}.png`;
   }
+
+  function getMode() {
+    const p = new URLSearchParams(location.search);
+    const m = (p.get("mode") || "").toLowerCase();
+    if (m === "single") return "single";
+    if (m === "two") return "two";
+    return null;
+  }
+
+  const mode = getMode();
+  if (!mode) {
+    location.href = "index.html";
+    return;
+  }
+
+  // State
+  let allPlayers = [];
+  let drafted = new Set();
+
+  let timer = 30;
+  let timerHandle = null;
+
+  let round = 1;       // 1..8
+  let pickInRound = 1; // 1..(two?2:1)
+
+  let roundTeams = [];
+  let currentTeam = null;
+  let lastTeamShown = null;
+
+  const rosters = [
+    { name: "Player 1", picks: Array(8).fill(null), score: 0 },
+    { name: "Player 2", picks: Array(8).fill(null), score: 0 },
+  ];
+
+  let tempOverrideSlot = null; // clicked roster slot when Draft Position=AUTO (one-pick override)
+  let selectedRosterRowEl = null;
+
+  function setError(msg) {
+    if (!msg) {
+      errorBar.style.display = "none";
+      errorBar.textContent = "";
+      return;
+    }
+    errorBar.style.display = "block";
+    errorBar.textContent = msg;
+  }
+
+  async function loadPlayers() {
+    const res = await fetch("data/players.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Failed to load data/players.json (${res.status})`);
+    const json = await res.json();
+
+    let arr = null;
+    if (Array.isArray(json)) arr = json;
+    else if (json && Array.isArray(json.players)) arr = json.players;
+    else if (json && Array.isArray(json.data)) arr = json.data;
+
+    if (!Array.isArray(arr)) throw new Error("players.json must be an array or {players:[…]}");
+
+    return arr.map(p => {
+      const name = p.name || p.player || p.Player || "";
+      const pos = (p.pos || p.position || p.Pos || "").toUpperCase();
+      const team = (p.team || p.Team || "").toUpperCase();
+      const pts = Number(p.points ?? p.fantasyPoints ?? p.pts ?? p.PTS ?? 0);
+      return { name, pos, team, pts, key: `${name}__${pos}__${team}`.toLowerCase() };
+    }).filter(p => p.name && p.pos && p.team);
+  }
+
+  function getCurrentPickerIndex() {
+    if (mode === "single") return 0;
+    // Snake by round: odd rounds P1 then P2, even rounds P2 then P1
+    const odd = (round % 2) === 1;
+    if (odd) return (pickInRound === 1) ? 0 : 1;
+    return (pickInRound === 1) ? 1 : 0;
+  }
+
+  function getNextOpenSlotIndex(roster) {
+    for (let i = 0; i < SLOTS.length; i++) {
+      if (!roster.picks[i]) return i;
+    }
+    return -1;
+  }
+
+  function isPlayerLegalForSlot(playerPos, slot) {
+    if (!slot) return false;
+    if (slot === "FLEX") return FLEX_OK.has(playerPos);
+    return playerPos === slot;
+  }
+
+  function getActiveDraftSlot() {
+    // Priority:
+    // 1) If Draft Position dropdown not AUTO -> use it
+    // 2) If AUTO and user clicked roster slot -> use tempOverrideSlot (one pick)
+    // 3) Else AUTO -> first open slot in current picker roster
+    const dp = draftPositionSelect.value;
+    if (dp !== "AUTO") return dp;
+    if (tempOverrideSlot) return tempOverrideSlot;
+
+    const r = rosters[getCurrentPickerIndex()];
+    const idx = getNextOpenSlotIndex(r);
+    return idx === -1 ? null : SLOTS[idx];
+  }
+
+  function currentTeamPlayers() {
+    return allPlayers.filter(p => p.team === currentTeam && !drafted.has(p.key));
+  }
+
+  function filteredPlayersForList() {
+    const showPos = showPositionSelect.value;
+    const q = (searchInput.value || "").trim().toLowerCase();
+
+    let list = currentTeamPlayers();
+
+    if (showPos !== "All") list = list.filter(p => p.pos === showPos);
+    if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
+
+    // Sort by points desc
+    list.sort((a,b) => b.pts - a.pts);
+    return list;
+  }
+
+  function renderHeader() {
+    roundText.textContent = `Round ${round} of 8`;
+
+    const modeLabel = (mode === "single") ? "Single" : "Versus";
+    const who = (mode === "single")
+      ? "Player 1"
+      : (getCurrentPickerIndex() === 0 ? "Player 1" : "Player 2");
+
+    const pickLabel = (mode === "single")
+      ? `Pick ${round}`
+      : `Pick ${pickInRound} of 2`;
+
+    statusText.textContent = `Mode: ${modeLabel} · Round ${round} of 8 · ${pickLabel} · Team: ${currentTeam} · On the clock: ${who}`;
+
+    const teamToShow = currentTeam || lastTeamShown;
+    if (teamToShow) {
+      teamLogo.src = teamLogoPath(teamToShow);
+      teamLogo.onerror = () => {
+        if (lastTeamShown) teamLogo.src = teamLogoPath(lastTeamShown);
+      };
+    }
+  }
+
+  function renderPlayers() {
+    const list = filteredPlayersForList();
+
+    if (!list.length) {
+      playersTbody.innerHTML = `<tr><td colspan="4" style="opacity:.75;">No eligible players for this team/filters.</td></tr>`;
+      return;
+    }
+
+    playersTbody.innerHTML = list.map(p => `
+      <tr data-key="${p.key}">
+        <td>${escapeHtml(p.name)}</td>
+        <td>${escapeHtml(p.pos)}</td>
+        <td>${escapeHtml(p.team)}</td>
+        <td class="right">${Number(p.pts).toFixed(1)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderRosters() {
+    const gameOver = isGameOver();
+    const winnerIndex = (mode === "two" && gameOver) ? calcWinnerIndex() : null;
+
+    const cards = [];
+    const howMany = (mode === "single") ? 1 : 2;
+
+    for (let p = 0; p < howMany; p++) {
+      const r = rosters[p];
+      const isWinner = (winnerIndex !== null && winnerIndex === p);
+
+      cards.push(`
+        <div class="rosterCard ${isWinner ? "winner" : ""}">
+          <div class="rosterHead">
+            <div class="rosterTitle">${r.name}${isWinner ? " — WINNER" : ""}</div>
+            <div class="rosterScore">Score: ${r.score.toFixed(1)}</div>
+          </div>
+          ${SLOTS.map((slot, i) => {
+            const pick = r.picks[i];
+            const filled = !!pick;
+            const label = filled ? `${escapeHtml(pick.name)} <span style="opacity:.7;">(${pick.team})</span>` : `<span style="opacity:.55;">—</span>`;
+            const status = filled ? `<span class="filled">FILLED</span>` : `<span class="open">OPEN</span>`;
+
+            // clickable roster rows for CURRENT picker only
+            const clickable = !filled && !gameOver && (getCurrentPickerIndex() === p) ? "clickable" : "";
+            return `
+              <div class="rosterRow ${clickable}" data-playerindex="${p}" data-slotindex="${i}">
+                <div class="slot">${slot}</div>
+                <div>${label}</div>
+                <div style="text-align:right;">${status}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `);
+    }
+
+    rostersWrap.innerHTML = cards.join("");
+
+    // Attach click handlers for roster slots
+    [...rostersWrap.querySelectorAll(".rosterRow.clickable")].forEach(el => {
+      el.addEventListener("click", () => {
+        // If Draft Position = AUTO, do one-pick override
+        if (draftPositionSelect.value === "AUTO") {
+          const slotIdx = Number(el.getAttribute("data-slotindex"));
+          tempOverrideSlot = SLOTS[slotIdx];
+
+          // visual selection
+          if (selectedRosterRowEl) selectedRosterRowEl.classList.remove("selected");
+          selectedRosterRowEl = el;
+          selectedRosterRowEl.classList.add("selected");
+
+          // Show Position should switch to that position for the list view
+          showPositionSelect.value = (tempOverrideSlot === "FLEX") ? "All" : tempOverrideSlot;
+          renderPlayers();
+        }
+      });
+    });
+  }
+
+  function isGameOver() {
+    if (mode === "single") {
+      return rosters[0].picks.every(Boolean);
+    }
+    return rosters[0].picks.every(Boolean) && rosters[1].picks.every(Boolean);
+  }
+
+  function calcWinnerIndex() {
+    if (rosters[0].score > rosters[1].score) return 0;
+    if (rosters[1].score > rosters[0].score) return 1;
+    return 0; // tie -> highlight Player 1 (simple)
+  }
+
+  function resetTimer() {
+    timer = 30;
+    timerText.textContent = `${timer}s`;
+    if (timerHandle) clearInterval(timerHandle);
+    timerHandle = setInterval(() => {
+      timer = Math.max(0, timer - 1);
+      timerText.textContent = `${timer}s`;
+      if (timer === 0) {
+        clearInterval(timerHandle);
+        timerHandle = null;
+        autoPickOnTimeout();
+      }
+    }, 1000);
+  }
+
+  function advanceTurn() {
+    // after a pick: Show Position resets to All (you wanted this)
+    showPositionSelect.value = "All";
+
+    // IMPORTANT: if Draft Position was AUTO and we used tempOverrideSlot, flip back behavior (clear override)
+    if (draftPositionSelect.value === "AUTO") {
+      tempOverrideSlot = null;
+      if (selectedRosterRowEl) selectedRosterRowEl.classList.remove("selected");
+      selectedRosterRowEl = null;
+    }
+
+    if (mode === "single") {
+      round++;
+      if (round > 8) {
+        // Game complete
+        currentTeam = null;
+        renderHeader();
+        renderRosters();
+        renderPlayers();
+        return;
+      }
+      currentTeam = roundTeams[round - 1];
+      lastTeamShown = currentTeam;
+      renderHeader();
+      renderRosters();
+      renderPlayers();
+      resetTimer();
+      return;
+    }
+
+    // two-player mode: same team for both picks in the round
+    if (pickInRound === 1) {
+      pickInRound = 2;
+    } else {
+      pickInRound = 1;
+      round++;
+    }
+
+    if (round > 8) {
+      currentTeam = null;
+      renderHeader();
+      renderRosters();
+      renderPlayers();
+      return;
+    }
+
+    currentTeam = roundTeams[round - 1];
+    lastTeamShown = currentTeam;
+
+    renderHeader();
+    renderRosters();
+    renderPlayers();
+    resetTimer();
+  }
+
+  function pickPlayer(player) {
+    if (!player) return;
+
+    const picker = getCurrentPickerIndex();
+    const roster = rosters[picker];
+
+    const slot = getActiveDraftSlot();
+    if (!slot) return;
+
+    // Find a legal open slot index for that slot type
+    let slotIndex = -1;
+
+    if (slot === "AUTO") {
+      slotIndex = getNextOpenSlotIndex(roster);
+    } else {
+      for (let i = 0; i < SLOTS.length; i++) {
+        if (!roster.picks[i] && SLOTS[i] === slot) {
+          slotIndex = i;
+          break;
+        }
+      }
+      // FLEX needs any open FLEX slot
+      if (slot === "FLEX" && slotIndex === -1) {
+        for (let i = 0; i < SLOTS.length; i++) {
+          if (!roster.picks[i] && SLOTS[i] === "FLEX") {
+            slotIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    if (slotIndex === -1) {
+      setError("No open roster slot available for that Draft Position.");
+      return;
+    }
+
+    // Validate legality
+    if (!isPlayerLegalForSlot(player.pos, SLOTS[slotIndex])) {
+      setError("Illegal pick for that slot.");
+      return;
+    }
+
+    setError(null);
+
+    roster.picks[slotIndex] = player;
+    roster.score += player.pts;
+
+    drafted.add(player.key);
+
+    renderRosters();
+    renderPlayers();
+    renderHeader();
+
+    // If user manually selected a Draft Position (not AUTO), KEEP it.
+    // If Draft Position is AUTO, we already clear override on advanceTurn, but Draft Position stays AUTO.
+    advanceTurn();
+  }
+
+  function autoPickOnTimeout() {
+    if (isGameOver()) return;
+
+    // Auto select first open slot, then random legal player
+    const picker = getCurrentPickerIndex();
+    const roster = rosters[picker];
+    const openIndex = getNextOpenSlotIndex(roster);
+    if (openIndex === -1) return;
+
+    const slot = SLOTS[openIndex];
+
+    const pool = currentTeamPlayers().filter(p => isPlayerLegalForSlot(p.pos, slot));
+    if (!pool.length) {
+      // if no legal player exists, just advance (rare)
+      advanceTurn();
+      return;
+    }
+
+    const choice = pool[Math.floor(Math.random() * pool.length)];
+    // Force pick into that open slot type
+    tempOverrideSlot = slot;
+    pickPlayer(choice);
+  }
+
+  function startNewGame() {
+    drafted = new Set();
+    rosters[0].picks = Array(8).fill(null);
+    rosters[1].picks = Array(8).fill(null);
+    rosters[0].score = 0;
+    rosters[1].score = 0;
+
+    round = 1;
+    pickInRound = 1;
+
+    // Reset dropdowns/filters
+    draftPositionSelect.value = "AUTO";
+    showPositionSelect.value = "All";
+    searchInput.value = "";
+    tempOverrideSlot = null;
+    selectedRosterRowEl = null;
+
+    // Create unique teams per round
+    roundTeams = shuffle(TEAMS).slice(0, 8);
+    currentTeam = roundTeams[0];
+    lastTeamShown = currentTeam;
+
+    setError(null);
+    dataStamp.textContent = `Data: ${nowStamp()}`;
+
+    renderHeader();
+    renderRosters();
+    renderPlayers();
+    resetTimer();
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  // -------------------------
+  // Events
+  // -------------------------
+  newGameBtn.addEventListener("click", () => {
+    showPositionSelect.value = "All";
+    draftPositionSelect.value = "AUTO";
+    tempOverrideSlot = null;
+    if (selectedRosterRowEl) selectedRosterRowEl.classList.remove("selected");
+    selectedRosterRowEl = null;
+    startNewGame();
+  });
+
+  changeModeBtn.addEventListener("click", () => {
+    showPositionSelect.value = "All";
+    draftPositionSelect.value = "AUTO";
+    tempOverrideSlot = null;
+    if (selectedRosterRowEl) selectedRosterRowEl.classList.remove("selected");
+    selectedRosterRowEl = null;
+    location.href = "index.html";
+  });
+
+  showPositionSelect.addEventListener("change", () => renderPlayers());
+  searchInput.addEventListener("input", () => renderPlayers());
+
+  draftPositionSelect.addEventListener("change", () => {
+    // If user moves off AUTO, cancel any one-pick override highlight
+    if (draftPositionSelect.value !== "AUTO") {
+      tempOverrideSlot = null;
+      if (selectedRosterRowEl) selectedRosterRowEl.classList.remove("selected");
+      selectedRosterRowEl = null;
+    }
+  });
+
+  playersTbody.addEventListener("click", (e) => {
+    const tr = e.target.closest("tr[data-key]");
+    if (!tr) return;
+    const key = tr.getAttribute("data-key");
+    const player = allPlayers.find(p => p.key === key);
+    if (!player) return;
+    pickPlayer(player);
+  });
+
+  // -------------------------
+  // Init
+  // -------------------------
+  (async function init() {
+    try {
+      setError(null);
+      dataStamp.textContent = `Data: ${nowStamp()}`;
+      allPlayers = await loadPlayers();
+      startNewGame();
+    } catch (err) {
+      setError(String(err.message || err));
+      playersTbody.innerHTML = `<tr><td colspan="4" style="opacity:.75;">Failed to load players.</td></tr>`;
+    }
+  })();
 })();
