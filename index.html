@@ -7,10 +7,27 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- MODE SELECT (MAIN PAGE) -->
+  <div id="modeScreen" class="overlay">
+    <div class="overlayCard">
+      <div class="overlayTitle">NHL Pick’em by MayerBros</div>
+      <div class="overlaySub">Choose a game mode to begin</div>
+
+      <div class="overlayButtons">
+        <button id="btnStartSingle" class="btn btn--big">Single Player</button>
+        <button id="btnStartTwo" class="btn btn--big btn--ghost">Versus (2 Player)</button>
+      </div>
+
+      <div class="overlayNote">
+        Draft by team • FLEX accepts C/LW/RW only
+      </div>
+    </div>
+  </div>
+
   <div class="page">
     <header class="hero">
       <div class="hero__title">NHL Pick’em by MayerBros</div>
-      <div class="hero__subtitle">Draft by team • Blind draft</div>
+      <div class="hero__subtitle">Draft by team</div>
     </header>
 
     <section class="topbar card">
@@ -36,7 +53,9 @@
     <main class="grid">
       <section class="card">
         <div class="card__title">2024–2025 Fantasy Points</div>
-        <div class="card__hint">Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.</div>
+        <div class="card__hint">
+          Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.
+        </div>
 
         <div class="controls">
           <label class="control">
@@ -80,17 +99,17 @@
       <section class="card">
         <div class="rostersHeader">
           <div class="card__title">Rosters</div>
+
+          <!-- Single-player ONLY -->
           <div id="singleExtras" class="singleExtras hidden">
             <div class="hsLine">
-              <div><span class="muted">High Score:</span> <span id="highScore">0</span></div>
+              <div><span class="muted">High Score:</span> <span id="highScore">0.0</span></div>
               <button id="btnResetHS" class="btn btn--ghost btn--small">Reset High Score</button>
             </div>
           </div>
         </div>
 
-        <div id="rostersWrap" class="rostersWrap">
-          <!-- filled by JS -->
-        </div>
+        <div id="rostersWrap" class="rostersWrap"></div>
 
         <div class="slotsLine" id="slotsLine">
           Slots: C, LW, RW, D, D, G, FLEX, FLEX — FLEX accepts C/LW/RW only.
