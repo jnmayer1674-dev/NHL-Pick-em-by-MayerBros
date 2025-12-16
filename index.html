@@ -13,7 +13,7 @@
     <header class="top">
       <div class="brand">
         <h1 class="title">NHL Pick’em by MayerBros</h1>
-        <div class="subtitle">Draft by team • Blind draft</div>
+        <div class="subtitle">Draft by team • Blind draft </div>
       </div>
     </header>
 
@@ -21,6 +21,7 @@
     <section id="modeScreen" class="card mode-card">
       <h2 class="card-title">Choose Game Mode</h2>
       <div class="hint">Pick one. You can change modes later.</div>
+
       <div class="mode-buttons">
         <button id="startSingle" class="btn btn-primary" type="button">Start Single Player</button>
         <button id="startVersus" class="btn" type="button">Start 2 Player Versus</button>
@@ -36,9 +37,11 @@
             <div id="turnLine" class="status-line subtle">—</div>
             <div class="status-line subtle">Blind draft: player values hidden.</div>
           </div>
+
           <div class="status-right">
             <button id="btnChangeMode" class="btn" type="button">Change Mode</button>
             <button id="btnNewGame" class="btn btn-primary" type="button">New Game</button>
+
             <div class="team-badge">
               <img id="teamLogo" class="team-logo" alt="" />
               <div class="team-meta">
@@ -52,12 +55,12 @@
 
       <main class="grid">
 
-        <!-- Player Table -->
         <section class="card">
           <div class="card-head">
             <h2 class="card-title">2024–2025 Fantasy Points</h2>
             <div class="hint">Step 1: click an OPEN roster slot. Step 2: click a player. Illegal picks are blocked.</div>
           </div>
+
           <div class="filters">
             <label class="label">
               Position:
@@ -70,11 +73,13 @@
                 <option value="G">G</option>
               </select>
             </label>
+
             <label class="label">
               Search:
               <input id="searchInput" class="input" type="text" placeholder="type a name..." />
             </label>
           </div>
+
           <div class="table-wrap">
             <table class="table">
               <thead>
@@ -88,19 +93,18 @@
               <tbody id="playersBody"></tbody>
             </table>
           </div>
+
           <div id="emptyMsg" class="empty hidden">
             No players loaded yet. (If you opened file:/// locally, use Netlify.)
           </div>
         </section>
 
-        <!-- Rosters -->
         <section class="card">
           <div class="card-head">
             <h2 class="card-title">Rosters</h2>
             <div id="winnerLine" class="hint"></div>
           </div>
 
-          <!-- Single Player -->
           <div id="rostersOne" class="rosters hidden">
             <div class="roster">
               <div class="roster-head">
@@ -110,12 +114,11 @@
                   <span id="singleHighScore" class="high-score">High Score: 0</span>
                 </div>
               </div>
+              <button id="resetHighScore" class="btn btn-primary" type="button">Reset High Score</button>
               <div id="p1Slots" class="slots"></div>
-              <button id="resetHighScore" class="btn btn-primary" style="margin-top:10px;">Reset High Score</button>
             </div>
           </div>
 
-          <!-- Two Player -->
           <div id="rostersTwo" class="rosters hidden">
             <div class="roster">
               <div class="roster-head">
@@ -124,6 +127,7 @@
               </div>
               <div id="p1Slots2" class="slots"></div>
             </div>
+
             <div class="roster">
               <div class="roster-head">
                 <div class="roster-title">Player 2</div>
@@ -133,16 +137,13 @@
             </div>
           </div>
 
-          <div class="slots-note">FLEX = C / LW / RW ONLY!!!</div>
+          <div class="slots-note">
+            FLEX = C / LW / RW ONLY!!!
+          </div>
         </section>
 
       </main>
 
-      <footer class="footer">
-        <div class="subtle">
-          Notes: Utah uses Arizona history when applicable. Team shown is the most recent team within the 7-season window.
-        </div>
-      </footer>
     </section>
 
   </div>
