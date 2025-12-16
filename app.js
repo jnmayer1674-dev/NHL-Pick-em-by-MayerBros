@@ -1,22 +1,12 @@
-/* NHL Pick’em by MayerBros — GAME SCRIPT (game.html)
-   Fixes your “Loading…” stuck screen by:
-   - Running ONLY after DOMContentLoaded
-   - Hard-checking required DOM elements
-   - Displaying any runtime error inside errorBox
-*/
-
 document.addEventListener("DOMContentLoaded", () => {
-  try {
-    boot();
-  } catch (err) {
-    // If anything explodes before we can show errorBox, do a safe fallback
+  try { boot(); } catch (err) {
     console.error(err);
     alert("App crash. Open DevTools Console for details.\n\n" + (err?.stack || err));
   }
 });
 
 function boot() {
-  // ---------- DOM (required) ----------
+  // Required DOM
   const elStatus = must("statusLine");
   const elSubStatus = must("subStatusLine");
   const elModeBtn = must("btnMode");
@@ -38,8 +28,8 @@ function boot() {
   const elHighScore = must("highScore");
   const elResetHS = must("btnResetHS");
 
-  // ---------- CONSTANTS ----------
-  const STORAGE_KEY_HS = "nhl_pickem_highscore_v5";
+  // Constants
+  const STORAGE_KEY_HS = "nhl_pickem_highscore_v7";
   const MODE_SINGLE = "single";
   const MODE_TWO = "two";
 
@@ -54,9 +44,10 @@ function boot() {
     { key: "FLEX2", label: "FLEX", accepts: ["C", "LW", "RW"] },
   ];
 
+  // Logos: allow alternate file names
   const LOGO_MAP = { LAK: "LA", NJD: "NJ", TBL: "TB", SJS: "SJ" };
 
-  // ---------- STATE ----------
+  // State
   let allPlayers = [];
   let availablePlayers = [];
   let gameMode = MODE_SINGLE;
@@ -75,7 +66,7 @@ function boot() {
     onClock: 1,
   };
 
-  // ---------- UI helpers ----------
+  // UI helpers
   function showError(msg) {
     elErrorBox.textContent = msg;
     elErrorBox.classList.remove("hidden");
@@ -86,11 +77,11 @@ function boot() {
     elErrorBox.classList.add("hidden");
   }
 
-  // ---------- URL MODE ----------
+  // Mode from URL
   const urlMode = (new URLSearchParams(window.location.search).get("mode") || "single").toLowerCase();
   gameMode = (urlMode === "two" || urlMode === "versus" || urlMode === "vs") ? MODE_TWO : MODE_SINGLE;
 
-  // ---------- EVENTS ----------
+  // Events
   elModeBtn.addEventListener("click", () => {
     stopTimer();
     window.location.href = "index.html";
@@ -98,10 +89,7 @@ function boot() {
 
   elNewBtn.addEventListener("click", () => startGame(gameMode));
 
-  elDraftPos.addEventListener("change", () => {
-    renderRosters();
-    renderPlayersTable();
-  });
+  elDraftPos.addEventListener("change", () => { renderRosters(); renderPlayersTable(); });
   elPosFilter.addEventListener("change", renderPlayersTable);
   elSearch.addEventListener("input", renderPlayersTable);
 
@@ -110,7 +98,7 @@ function boot() {
     updateHighScoreUI();
   });
 
-  // ---------- INIT ----------
+  // Init
   elStatus.textContent = "Loading…";
   elSubStatus.textContent = "Fetching players.json…";
   hideError();
@@ -128,14 +116,13 @@ function boot() {
       );
       elStatus.textContent = "Error loading players.";
       elSubStatus.textContent = "";
-      // also keep roster empty, but show something:
       elPlayersTbody.innerHTML = `<tr><td colspan="3" class="muted">Could not load players.</td></tr>`;
     });
 
-  // ---------- DATA ----------
+  // Data load
   async function loadPlayers() {
     const url = new URL("data/players.json", window.location.href);
-    url.searchParams.set("v", String(Date.now()));
+    url.searchParams.set("v", String(Date.now())); // bust cache
 
     const res = await fetch(url.toString(), { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url.pathname}`);
@@ -173,7 +160,7 @@ function boot() {
     };
   }
 
-  // ---------- GAME ----------
+  // Game flow
   function startGame(mode) {
     stopTimer();
     hideError();
@@ -214,8 +201,7 @@ function boot() {
 
     const totalPicks = SLOTS.length * game.playersCount;
     if (currentPickIndex >= totalPicks) {
-      currentTeam = "—";
-      updateTeamBadge();
+      // IMPORTANT: keep last logo/team badge (don’t blank it)
       elTimer.textContent = "0s";
       updateScoresAndHighScore();
       elStatus.textContent = "Game complete.";
@@ -230,7 +216,7 @@ function boot() {
     game.onClock = pickOwner(currentPickIndex);
 
     if (remainingTeams.length === 0) remainingTeams = shuffle(uniqueTeams(availablePlayers));
-    currentTeam = remainingTeams.shift() || "—";
+    currentTeam = remainingTeams.shift() || currentTeam || "—";
 
     updateTeamBadge();
     elStatus.textContent = `Mode: ${gameMode === MODE_SINGLE ? "Single" : "Versus"} • Pick ${currentPickIndex + 1} • Team: ${currentTeam}`;
@@ -251,6 +237,7 @@ function boot() {
     }, 1000);
   }
 
+  // Timer auto-pick: first open slot + random legal player for that slot
   function autoPickOnTimer() {
     const owner = game.onClock;
     const roster = game.rosters[owner];
@@ -285,6 +272,7 @@ function boot() {
     nextPick();
   }
 
+  // Snake order in 2P mode (block per roster round)
   function pickOwner(pickIndex) {
     if (game.playersCount === 1) return 1;
     const block = Math.floor(pickIndex / SLOTS.length);
@@ -292,39 +280,34 @@ function boot() {
     return (pickIndex % 2 === 0) ? 2 : 1;
   }
 
-  // ---------- Draft placement ----------
+  // Slot resolution:
+  // - If Draft Position != AUTO, you can force a pick (e.g. goalie) if that slot is open.
+  // - If AUTO, clicking a player places them in the first fitting open slot.
   function resolveSlotForPlayer(owner, player, draftPos) {
-    const roster = game.rosters[owner];
+    const r = game.rosters[owner];
 
     if (draftPos !== "AUTO") {
-      const wants = draftPos;
-      if (wants === "C" && player.pos === "C" && !roster.C) return "C";
-      if (wants === "LW" && player.pos === "LW" && !roster.LW) return "LW";
-      if (wants === "RW" && player.pos === "RW" && !roster.RW) return "RW";
-      if (wants === "G" && player.pos === "G" && !roster.G) return "G";
-      if (wants === "D" && player.pos === "D") {
-        if (!roster.D1) return "D1";
-        if (!roster.D2) return "D2";
-      }
-      if (wants === "FLEX" && ["C","LW","RW"].includes(player.pos)) {
-        if (!roster.FLEX1) return "FLEX1";
-        if (!roster.FLEX2) return "FLEX2";
-      }
+      if (draftPos === "C" && player.pos === "C" && !r.C) return "C";
+      if (draftPos === "LW" && player.pos === "LW" && !r.LW) return "LW";
+      if (draftPos === "RW" && player.pos === "RW" && !r.RW) return "RW";
+      if (draftPos === "G" && player.pos === "G" && !r.G) return "G";
+      if (draftPos === "D" && player.pos === "D") { if (!r.D1) return "D1"; if (!r.D2) return "D2"; }
+      if (draftPos === "FLEX" && ["C","LW","RW"].includes(player.pos)) { if (!r.FLEX1) return "FLEX1"; if (!r.FLEX2) return "FLEX2"; }
       return null;
     }
 
     // AUTO
-    if (player.pos === "C" && !roster.C) return "C";
-    if (player.pos === "LW" && !roster.LW) return "LW";
-    if (player.pos === "RW" && !roster.RW) return "RW";
-    if (player.pos === "D") { if (!roster.D1) return "D1"; if (!roster.D2) return "D2"; }
-    if (player.pos === "G" && !roster.G) return "G";
-    if (["C","LW","RW"].includes(player.pos)) { if (!roster.FLEX1) return "FLEX1"; if (!roster.FLEX2) return "FLEX2"; }
+    if (player.pos === "C" && !r.C) return "C";
+    if (player.pos === "LW" && !r.LW) return "LW";
+    if (player.pos === "RW" && !r.RW) return "RW";
+    if (player.pos === "D") { if (!r.D1) return "D1"; if (!r.D2) return "D2"; }
+    if (player.pos === "G" && !r.G) return "G";
+    if (["C","LW","RW"].includes(player.pos)) { if (!r.FLEX1) return "FLEX1"; if (!r.FLEX2) return "FLEX2"; }
 
     return null;
   }
 
-  // ---------- Render ----------
+  // Render player list (only legal players for current team + selected draft rules)
   function renderPlayersTable() {
     let list = availablePlayers;
 
@@ -334,8 +317,8 @@ function boot() {
     if (pf !== "ALL") list = list.filter(p => p.pos === pf);
 
     const owner = game.onClock;
-    const draftPos = elDraftPos.value || "AUTO";
-    list = list.filter(p => resolveSlotForPlayer(owner, p, draftPos) !== null);
+    const dp = elDraftPos.value || "AUTO";
+    list = list.filter(p => resolveSlotForPlayer(owner, p, dp) !== null);
 
     const q = elSearch.value.trim().toLowerCase();
     if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
@@ -370,6 +353,7 @@ function boot() {
     });
   }
 
+  // Render rosters
   function renderRosters() {
     elRostersWrap.classList.toggle("two", game.playersCount === 2);
 
@@ -410,15 +394,24 @@ function boot() {
     `;
   }
 
+  // Team badge logo (never blanks at end)
   function updateTeamBadge() {
     elTeamAbbrev.textContent = currentTeam || "—";
-    if (!currentTeam || currentTeam === "—") { elTeamLogo.src = ""; return; }
+    if (!currentTeam || currentTeam === "—") return;
+
     const fileKey = LOGO_MAP[currentTeam] || currentTeam;
-    elTeamLogo.src = `assets/logos/${fileKey}.png`;
-    elTeamLogo.onerror = () => { elTeamLogo.src = ""; };
+    const src = `assets/logos/${fileKey}.png`;
+
+    // if a logo is missing, do NOT swap to a broken image
+    const prev = elTeamLogo.src;
+    elTeamLogo.onerror = () => {
+      elTeamLogo.onerror = null;
+      elTeamLogo.src = prev;
+    };
+    elTeamLogo.src = src;
   }
 
-  // ---------- High score ----------
+  // High score (single player only)
   function updateScoresAndHighScore() {
     game.scores[1] = calcScore(1);
     game.scores[2] = calcScore(2);
@@ -443,7 +436,7 @@ function boot() {
     localStorage.setItem(STORAGE_KEY_HS, String(val || 0));
   }
 
-  // ---------- Helpers ----------
+  // Helpers
   function makeEmptyRoster() {
     const r = {};
     SLOTS.forEach(s => r[s.key] = null);
