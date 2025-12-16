@@ -1,241 +1,103 @@
-/* =========================
-   RESET / BASE
-========================= */
-* {
-  box-sizing: border-box;
-}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NHL Pick’em by MayerBros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
-  background: radial-gradient(1200px 600px at 20% 0%, #3b2b63 0%, #0b0f1a 55%, #06080f 100%);
-  color: #e8e9ef;
-}
+<body>
+  <div class="page">
+    <div class="card headerCard">
+      <div class="headerLeft">
+        <h1 class="title">NHL Pick’em by MayerBros</h1>
+        <div class="subtitle">Draft by team</div>
+      </div>
 
-/* =========================
-   PAGE WRAPPER
-========================= */
-.page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 28px 24px 40px;
-}
+      <div class="qrBox">
+        <img class="qrImg" src="assets/qr.png" alt="QR code">
+        <div class="qrText">Scan to open<br>on phone or tablet</div>
+      </div>
+    </div>
 
-/* =========================
-   CARDS
-========================= */
-.card {
-  background: linear-gradient(180deg, rgba(28,30,48,.95), rgba(18,20,36,.95));
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.45);
-  padding: 18px 20px;
-  margin-bottom: 18px;
-}
+    <div class="card statusBar">
+      <div class="statusText" id="statusText">Loading…</div>
 
-/* =========================
-   HEADER
-========================= */
-.headerCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+      <div class="statusRight">
+        <button id="changeModeBtn" class="secondary">Change Mode</button>
+        <button id="newGameBtn">New Game</button>
 
-.headerLeft .title {
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0;
-}
+        <div class="teamPill">
+          <img id="teamLogo" class="teamLogo" alt="team logo" />
+          <div class="timerPill"><span id="timerText">30s</span></div>
+        </div>
+      </div>
+    </div>
 
-.subtitle {
-  opacity: .7;
-  margin-top: 4px;
-  font-size: 13px;
-}
+    <div class="mainGrid">
+      <div class="card">
+        <div class="panelTitle">2024–2025 Fantasy Points</div>
+        <div class="panelSub">Choose a roster slot (or Draft Position) then click a player.</div>
 
-/* =========================
-   QR
-========================= */
-.qrBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+        <div class="controls">
+          <select id="draftPositionSelect" title="Draft Position">
+            <option value="AUTO">AUTO</option>
+            <option value="C">C</option>
+            <option value="LW">LW</option>
+            <option value="RW">RW</option>
+            <option value="D">D</option>
+            <option value="G">G</option>
+            <option value="FLEX">FLEX</option>
+          </select>
 
-.qrImg {
-  width: 96px;
-  height: 96px;
-  border-radius: 8px;
-  background: #fff;
-  padding: 6px;
-}
+          <select id="showPositionSelect" title="Show Position">
+            <option value="All">All</option>
+            <option value="C">C</option>
+            <option value="LW">LW</option>
+            <option value="RW">RW</option>
+            <option value="D">D</option>
+            <option value="G">G</option>
+          </select>
 
-.qrText {
-  font-size: 12px;
-  opacity: .75;
-  max-width: 110px;
-}
+          <input id="searchInput" placeholder="type a name…" />
+          <div class="dataStamp" id="dataStamp"></div>
+        </div>
 
-/* =========================
-   MODE SELECT MODAL
-========================= */
-.mode-select {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>PLAYER</th>
+                <th style="width:70px;">POS</th>
+                <th style="width:70px;">TEAM</th>
+                <th style="width:90px; text-align:right;">PTS</th>
+              </tr>
+            </thead>
+            <tbody id="playersTbody">
+              <tr><td colspan="4" style="opacity:.7;">Loading players…</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-.modalCard {
-  width: 360px;
-  text-align: center;
-}
+        <div class="errorBar" id="errorBar" style="display:none;"></div>
+      </div>
 
-.modalTitle {
-  font-size: 18px;
-  margin-bottom: 14px;
-}
+      <div class="card">
+        <div class="panelTitleRow">
+          <div class="panelTitle">Rosters</div>
+          <div class="roundText" id="roundText"></div>
+        </div>
 
-.modalButtons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
+        <div class="rosters" id="rostersWrap"></div>
 
-button {
-  appearance: none;
-  border: none;
-  background: linear-gradient(180deg, #5b6cff, #4b56e5);
-  color: #fff;
-  border-radius: 999px;
-  padding: 10px 18px;
-  cursor: pointer;
-  font-weight: 600;
-}
+        <div class="slotsHint">
+          Slots: C, LW, RW, D, D, G, FLEX, FLEX — FLEX accepts C/LW/RW only.
+        </div>
+      </div>
+    </div>
+  </div>
 
-button.secondary {
-  background: rgba(255,255,255,.1);
-}
-
-/* =========================
-   STATUS BAR
-========================= */
-.statusBar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.statusText {
-  font-size: 14px;
-  opacity: .85;
-}
-
-/* =========================
-   MAIN GRID
-========================= */
-.mainGrid {
-  display: grid;
-  grid-template-columns: 1.2fr .8fr;
-  gap: 18px;
-}
-
-/* =========================
-   PLAYER TABLE
-========================= */
-.tableWrap {
-  overflow: hidden;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  text-align: left;
-  font-size: 12px;
-  opacity: .6;
-  padding-bottom: 6px;
-}
-
-tbody tr {
-  cursor: pointer;
-}
-
-tbody tr:hover {
-  background: rgba(255,255,255,.05);
-}
-
-td {
-  padding: 8px 6px;
-  font-size: 14px;
-}
-
-/* =========================
-   ROSTERS
-========================= */
-.rosters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.rosterCard {
-  padding: 12px;
-}
-
-.rosterTitle {
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.rosterRow {
-  display: grid;
-  grid-template-columns: 38px 1fr 48px;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-
-.rosterRow:last-child {
-  border-bottom: none;
-}
-
-.slot {
-  font-weight: 700;
-}
-
-.open {
-  color: #4dffb0;
-}
-
-.filled {
-  opacity: .85;
-}
-
-/* =========================
-   WINNER HIGHLIGHT
-========================= */
-.rosterCard.winner {
-  outline: 2px solid #6cffb5;
-  box-shadow: 0 0 24px rgba(108,255,181,.35);
-}
-
-/* =========================
-   CONTROLS
-========================= */
-.controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-select, input {
-  background: rgba(255,255,255,.1);
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 6px 10px;
-}
+  <script src="app.js"></script>
+</body>
+</html>
