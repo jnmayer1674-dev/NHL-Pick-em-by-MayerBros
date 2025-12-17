@@ -1,47 +1,40 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NHL Pick’em by MayerBros</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>NHL Pickem by MayerBros</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
-
-<body class="mode-select">
-  <div class="bg"></div>
-
-  <div class="page">
-    <div class="card headerCard">
-      <div class="headerLeft">
-        <h1 class="title">NHL Pick’em by MayerBros</h1>
-        <div class="subtitle">Draft by team</div>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__title">NHL Pickem</div>
+        <div class="brand__subtitle">by MayerBros</div>
       </div>
+    </header>
 
-      <div class="qrBox" aria-label="QR code to open site">
-        <img class="qrImg" src="assets/qr.png" alt="QR code">
-        <div class="qrText">Scan to open<br>on phone or tablet</div>
-      </div>
-    </div>
+    <main class="home">
+      <div class="card homeCard">
+        <h1>Choose a game mode</h1>
+        <p class="muted">Blinded draft. Click any player to auto-fill your next valid roster slot.</p>
 
-    <div class="card modalCard">
-      <div class="modalTitle">Choose a game mode to begin</div>
-      <div class="modalButtons">
-        <button class="btn primary" id="goSingle" type="button">Single Player</button>
-        <button class="btn" id="goTwo" type="button">Versus Mode</button>
+        <div class="homeButtons">
+          <a class="btn primary" href="./game.html?mode=single">Single Player</a>
+          <a class="btn" href="./game.html?mode=vs">2 Player Head-to-Head</a>
+        </div>
+
+        <div class="note">
+          <strong>Roster:</strong> C, LW, RW, D, D, G, FLEX, FLEX
+          <span class="muted">(FLEX = C/LW/RW only)</span>
+        </div>
       </div>
-      <div class="modalHint">FLEX accepts C/LW/RW only</div>
-    </div>
+    </main>
+
+    <footer class="footer muted">
+      Data loads from <code>./data/players.json</code>
+    </footer>
   </div>
-
-  <script src="app.js"></script>
-  <script>
-    // Simple navigation (no dependency on app.js)
-    document.getElementById("goSingle").addEventListener("click", () => {
-      window.location.href = "game.html?mode=single";
-    });
-    document.getElementById("goTwo").addEventListener("click", () => {
-      window.location.href = "game.html?mode=two";
-    });
-  </script>
 </body>
 </html>
