@@ -3,31 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Single Player — NHL Pick’em Draft by MayerBros</title>
+  <title>NHL Pick’em Draft by MayerBros</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body data-mode="single">
+<body data-mode="home">
   <div class="bg"></div>
 
   <header class="topbar topbar-grid">
-    <div class="topbar-left">
-      <a class="btn homebtn" href="index.html">← Home</a>
-    </div>
+    <div class="topbar-left"></div>
 
     <div class="topbar-center">
       <div class="title">NHL Pick’em Draft by MayerBros</div>
-      <div class="subtitle muted">Single Player • Random team rounds • FLEX = C/LW/RW only</div>
+      <div class="subtitle muted">Choose a game mode</div>
     </div>
 
     <div class="topbar-right">
-      <div class="scorebox">
-        <div class="scoreline">
-          <div class="pill">High Score: <span id="highScore">0</span></div>
-          <button class="btn tiny" id="resetHighScoreBtn">Reset</button>
-        </div>
-        <div class="pill">Score: <span id="currentScore">0</span></div>
-      </div>
-
       <div class="qrbox">
         <img class="qr" src="assets/qr.png" alt="QR code" />
         <div class="qrlabel">Scan to open on phone or tablet</div>
@@ -36,61 +26,32 @@
   </header>
 
   <main class="board-wrap">
-    <section class="panel team-panel">
-      <div class="team-panel-top">
-        <div class="team-panel-label muted">Current Team</div>
+    <section class="panel mode-panel">
+      <div class="broadcast-bar"></div>
+
+      <div class="mode-hero">
+        <div class="mode-h1">Choose a game mode</div>
+        <div class="mode-sub muted">Clean, fast, and mobile-friendly. No installs. Just play.</div>
       </div>
 
-      <div class="team-stage">
-        <img id="heroLogo" class="hero-logo" alt="Team logo" />
-        <!-- BIG DIGITAL CLOCK -->
-        <div class="digital-clock" id="timerText">0:30</div>
+      <div class="mode-grid">
+        <a class="mode-card" href="single.html">
+          <div class="mode-icon">👤</div>
+          <div class="mode-name">Single Player</div>
+          <div class="mode-desc muted">Draft alone and chase your best score.</div>
+        </a>
+
+        <a class="mode-card" href="vs.html">
+          <div class="mode-icon">👥</div>
+          <div class="mode-name">Versus Mode</div>
+          <div class="mode-desc muted">Snake draft head-to-head. Blinded points.</div>
+        </a>
       </div>
-
-      <div class="roundline">
-        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 8 • Team —</div>
-        <button class="btn" id="newGameBtn">New Game</button>
-      </div>
-    </section>
-
-    <section class="board-grid single-grid">
-      <aside class="panel roster-panel">
-        <div class="roster-head">
-          <div class="roster-title">Your Roster</div>
-          <div class="muted small"><span id="filledCount">0</span>/8</div>
-        </div>
-        <div class="muted small roster-rule">Click any slot to draft that position • FLEX = C/LW/RW only</div>
-        <div class="roster-list" id="rosterList"></div>
-      </aside>
-
-      <section class="panel players-panel">
-        <div class="players-head">
-          <div class="players-title">Available Players</div>
-          <div class="muted small" id="filterLabel">All positions</div>
-        </div>
-
-        <div class="search-row">
-          <input id="searchInput" class="search" type="search" placeholder="Search players..." />
-          <button class="btn tiny" id="clearFilterBtn">All</button>
-        </div>
-
-        <div class="players-list" id="playersList"></div>
-        <div class="muted small note" id="dataStatus"></div>
-      </section>
     </section>
   </main>
 
-  <div class="modal hidden" id="endModal">
-    <div class="modal-card">
-      <div class="modal-title">Draft Complete</div>
-      <div class="modal-sub muted" id="endSummary">Nice work.</div>
-      <div class="modal-actions">
-        <button class="btn" id="playAgainBtn">Play Again</button>
-        <a class="btn ghost" href="index.html">Home</a>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+  <script>
+    // Keep landing screen clean; no JS needed here.
+  </script>
 </body>
 </html>
