@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Single Player — NHL Pick’em Draft by MayerBros</title>
+  <title>Versus — NHL Pick’em Draft by MayerBros</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body data-mode="single">
+<body data-mode="vs">
   <div class="bg"></div>
 
   <header class="topbar topbar-grid">
@@ -16,17 +16,13 @@
 
     <div class="topbar-center">
       <div class="title">NHL Pick’em Draft by MayerBros</div>
-      <div class="subtitle muted">Single Player • Random team rounds • FLEX = C/LW/RW only</div>
+      <div class="subtitle muted">
+        2 Player Head-to-Head • Same team for both picks • Snake rounds • FLEX = C/LW/RW only
+      </div>
     </div>
 
     <div class="topbar-right">
-      <div class="scorebox">
-        <div class="pill">High Score: <span id="highScore">0</span></div>
-        <div class="pill">Score: <span id="currentScore">0</span></div>
-      </div>
-
-      <button class="btn" id="resetHighScoreBtn" title="Reset high score">Reset HS</button>
-      <button class="btn" id="resetSingleBtn">Reset</button>
+      <button class="btn" id="resetVsBtn" type="button">Reset</button>
 
       <div class="qrbox">
         <img class="qr" src="assets/qr.png" alt="QR code" />
@@ -49,23 +45,22 @@
       </div>
 
       <div class="roundline">
-        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 8 • Team —</div>
-        <div class="pill">Picks: <span id="filledCount">0</span>/8</div>
+        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 16 • Team —</div>
+        <div class="pill">On the clock: <span id="onClock">Player 1</span></div>
       </div>
     </section>
 
-    <section class="board-grid single-grid">
+    <section class="board-grid vs-grid">
       <aside class="panel roster-panel">
         <div class="roster-head">
-          <div class="roster-title">Your Roster</div>
-          <div class="muted small"><span id="filledCount2">0</span>/8</div>
+          <div class="roster-title">Player 1</div>
+          <div class="roster-metrics">
+            <div class="pill tiny">Total: <span id="p1Total">0</span></div>
+            <div class="pill tiny"><span id="p1Filled">0</span>/8</div>
+          </div>
         </div>
-        <div class="muted small roster-rule">Click any slot to draft that position • FLEX = C/LW/RW only</div>
-        <div class="roster-list" id="rosterList"></div>
-
-        <div class="roster-actions">
-          <button class="btn" id="newGameBtn">New Game</button>
-        </div>
+        <div class="muted small roster-rule">Click slot to target • Or draft directly from list</div>
+        <div class="roster-list" id="p1Roster"></div>
       </aside>
 
       <section class="panel players-panel">
@@ -74,25 +69,35 @@
           <div class="muted small" id="filterLabel">All positions</div>
         </div>
 
-        <div class="midline" id="midLine">Round 1 of 8 • Team — • Pick 1 of 8</div>
-
         <div class="search-row">
           <input id="searchInput" class="search" type="search" placeholder="Search player..." />
-          <button class="btn tiny" id="clearFilterBtn">All</button>
+          <button class="btn tiny" id="clearFilterBtn" type="button">All</button>
         </div>
 
         <div class="players-list" id="playersList"></div>
         <div class="muted small note" id="dataStatus"></div>
       </section>
+
+      <aside class="panel roster-panel">
+        <div class="roster-head">
+          <div class="roster-title">Player 2</div>
+          <div class="roster-metrics">
+            <div class="pill tiny">Total: <span id="p2Total">0</span></div>
+            <div class="pill tiny"><span id="p2Filled">0</span>/8</div>
+          </div>
+        </div>
+        <div class="muted small roster-rule">Click slot to target • Or draft directly from list</div>
+        <div class="roster-list" id="p2Roster"></div>
+      </aside>
     </section>
   </main>
 
   <div class="modal hidden" id="endModal">
     <div class="modal-card">
-      <div class="modal-title">Draft Complete</div>
-      <div class="modal-sub muted" id="endSummary">Nice work.</div>
+      <div class="modal-title" id="winnerTitle">Winner</div>
+      <div class="modal-sub muted" id="endSummary">Draft complete.</div>
       <div class="modal-actions">
-        <button class="btn" id="playAgainBtn">Play Again</button>
+        <button class="btn" id="playAgainBtn" type="button">Play Again</button>
         <a class="btn ghost" href="index.html">Home</a>
       </div>
     </div>
