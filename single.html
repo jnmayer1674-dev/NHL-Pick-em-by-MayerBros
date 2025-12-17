@@ -16,9 +16,7 @@
 
     <div class="topbar-center">
       <div class="title">NHL Pick’em Draft by MayerBros</div>
-      <div class="subtitle muted">
-        Single Player • Random team rounds • FLEX = C/LW/RW only
-      </div>
+      <div class="subtitle muted">Single Player • Random team each pick • FLEX = C/LW/RW only</div>
     </div>
 
     <div class="topbar-right">
@@ -38,6 +36,8 @@
 
   <main class="board-wrap">
     <section class="panel team-panel">
+      <div class="broadcast-bar"></div>
+
       <div class="team-panel-top">
         <div class="team-panel-label muted">Current Team</div>
       </div>
@@ -59,7 +59,7 @@
           <div class="roster-title">Your Roster</div>
           <div class="muted small"><span id="filledCount2">0</span>/8</div>
         </div>
-        <div class="muted small roster-rule">Click any slot to draft that position • FLEX = C/LW/RW only</div>
+        <div class="muted small roster-rule">Click any slot to target that slot • Or draft directly from list</div>
         <div class="roster-list" id="rosterList"></div>
 
         <div class="roster-actions">
@@ -97,7 +97,7 @@
 
   <script src="app.js"></script>
   <script>
-    // keep both filled counters in sync if you want both visible
+    // sync filled counters
     const fc = document.getElementById('filledCount');
     const fc2 = document.getElementById('filledCount2');
     const obs = new MutationObserver(()=>{ if(fc2 && fc) fc2.textContent = fc.textContent; });
