@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NHL Pickem — Game</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=20251216c" />
 </head>
 <body>
   <div class="shell">
@@ -14,7 +14,7 @@
         <div class="brand__title" id="modeTitle">Game</div>
         <div class="brand__subtitleRow">
           <div class="brand__subtitle" id="modeSubtitle">—</div>
-          <img class="qr" src="./assets/qr.png" alt="QR code" />
+          <img class="qr" src="./assets/qr.png" alt="QR" />
         </div>
       </div>
 
@@ -25,6 +25,7 @@
     </header>
 
     <main class="game">
+
       <!-- SINGLE TEAM BANNER -->
       <section class="teamBanner hidden" id="teamBanner">
         <div class="teamBanner__left">
@@ -39,7 +40,7 @@
         </div>
       </section>
 
-      <!-- SINGLE LAYOUT -->
+      <!-- SINGLE MODE -->
       <section class="layout layout--single hidden" id="layoutSingle">
         <aside class="panel rosterPanel">
           <div class="panelHeader">
@@ -61,7 +62,7 @@
           <div class="panelHeader">
             <div>
               <div class="panelTitle">Players</div>
-              <div class="panelSubtitle muted">Blinded draft (no fantasy points shown)</div>
+              <div class="panelSubtitle muted">Blinded draft</div>
             </div>
             <div class="searchWrap">
               <input class="search" id="searchSingle" placeholder="Search player…" />
@@ -72,9 +73,9 @@
         </section>
       </section>
 
-      <!-- VS LAYOUT -->
+      <!-- VS MODE -->
       <section class="layout layout--vs hidden" id="layoutVs">
-        <aside class="panel rosterPanel">
+        <aside class="panel rosterPanel locked">
           <div class="panelHeader">
             <div>
               <div class="panelTitle">Player 1</div>
@@ -100,7 +101,7 @@
           <div class="playersList" id="playersListVs"></div>
         </section>
 
-        <aside class="panel rosterPanel">
+        <aside class="panel rosterPanel locked">
           <div class="panelHeader">
             <div>
               <div class="panelTitle">Player 2</div>
@@ -111,9 +112,10 @@
           <div class="roster" id="rosterP2"></div>
         </aside>
       </section>
+
     </main>
   </div>
 
-  <script src="./app.js"></script>
+  <script src="./app.js?v=20251216c"></script>
 </body>
 </html>
