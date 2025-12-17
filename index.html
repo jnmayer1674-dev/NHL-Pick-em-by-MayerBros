@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NHL Pickem by MayerBros</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=20251216c" />
 </head>
 <body>
   <div class="shell">
@@ -13,15 +13,17 @@
         <div class="brand__title">NHL Pickem</div>
         <div class="brand__subtitleRow">
           <div class="brand__subtitle">by MayerBros</div>
-          <img class="qr" src="./assets/qr.png" alt="QR code" />
+          <img class="qr" src="./assets/qr.png" alt="QR" />
         </div>
       </div>
     </header>
 
     <main class="home">
-      <div class="card homeCard">
+      <section class="card homeCard">
         <h1>Choose a game mode</h1>
-        <p class="muted">Blinded draft. Fantasy points stay hidden.</p>
+        <p class="muted">
+          Blinded draft: fantasy points are hidden while drafting.
+        </p>
 
         <div class="homeButtons">
           <a class="btn primary" href="./game.html?mode=single">Single Player</a>
@@ -30,10 +32,14 @@
 
         <div class="note">
           <strong>Roster:</strong> C, LW, RW, D, D, G, FLEX, FLEX
-          <span class="muted">(FLEX = C/LW/RW only)</span>
+          <span class="muted">— FLEX = C/LW/RW only</span>
         </div>
-      </div>
+      </section>
     </main>
+
+    <footer class="footer muted">
+      Data: <code>./data/players.json</code>
+    </footer>
   </div>
 </body>
 </html>
