@@ -23,7 +23,6 @@
 
     <div class="topbar-right">
       <button class="btn" id="resetVsBtn">Reset</button>
-
       <div class="qrbox">
         <img class="qr" src="assets/qr.png" alt="QR code" />
         <div class="qrlabel">Scan to open on phone or tablet</div>
@@ -37,18 +36,12 @@
         <div class="team-panel-label muted">Current Team</div>
       </div>
 
-      <div class="team-card">
-        <div class="team-row">
-          <img id="teamLogo" class="team-logo" alt="Team logo" />
-          <div>
-            <div class="team-code" id="teamCode">—</div>
-            <div class="muted small">Both players pick from this team. Click a roster slot to filter.</div>
-          </div>
-        </div>
+      <div class="team-stage">
+        <img id="heroLogo" class="hero-logo" alt="Team logo" />
       </div>
 
       <div class="roundline">
-        <div class="muted" id="roundPickLine">Round 1 of 8 • Team — • Pick 1 of 16</div>
+        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 16 • Team —</div>
         <div class="pill">On the clock: <span id="onClock">Player 1</span></div>
       </div>
     </section>
@@ -59,9 +52,8 @@
           <div class="roster-title">Player 1</div>
           <div class="muted small"><span id="p1Filled">0</span>/8</div>
         </div>
-        <div class="muted small roster-rule">FLEX = C/LW/RW only • Points hidden</div>
+        <div class="muted small roster-rule">Click any slot to draft that position • Points hidden</div>
         <div class="roster-list" id="p1Roster"></div>
-        <div class="muted small roster-rule bottom">FLEX = C/LW/RW only • Points hidden</div>
       </aside>
 
       <section class="panel players-panel">
@@ -74,7 +66,7 @@
 
         <div class="search-row">
           <input id="searchInput" class="search" type="search" placeholder="Search player..." />
-          <button class="btn tiny" id="clearFilterBtn" title="Clear filter">All</button>
+          <button class="btn tiny" id="clearFilterBtn">All</button>
         </div>
 
         <div class="players-list" id="playersList"></div>
@@ -86,9 +78,8 @@
           <div class="roster-title">Player 2</div>
           <div class="muted small"><span id="p2Filled">0</span>/8</div>
         </div>
-        <div class="muted small roster-rule">FLEX = C/LW/RW only • Points hidden</div>
+        <div class="muted small roster-rule">Click any slot to draft that position • Points hidden</div>
         <div class="roster-list" id="p2Roster"></div>
-        <div class="muted small roster-rule bottom">FLEX = C/LW/RW only • Points hidden</div>
       </aside>
     </section>
   </main>
