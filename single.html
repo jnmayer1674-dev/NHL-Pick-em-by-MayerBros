@@ -16,16 +16,14 @@
 
     <div class="topbar-center">
       <div class="title">NHL Pick’em Draft by MayerBros</div>
-      <div class="subtitle muted">
-        Single Player • Random team rounds • FLEX = C/LW/RW only
-      </div>
+      <div class="subtitle muted">Single Player • Random team rounds • FLEX = C/LW/RW only</div>
     </div>
 
     <div class="topbar-right">
       <div class="scorebox">
         <div class="scoreline">
           <div class="pill">High Score: <span id="highScore">0</span></div>
-          <button class="btn tiny" id="resetHighScoreBtn" title="Reset High Score">Reset</button>
+          <button class="btn tiny" id="resetHighScoreBtn">Reset</button>
         </div>
         <div class="pill">Score: <span id="currentScore">0</span></div>
       </div>
@@ -43,33 +41,24 @@
         <div class="team-panel-label muted">Current Team</div>
       </div>
 
-      <div class="team-card">
-        <div class="team-row">
-          <img id="teamLogo" class="team-logo" alt="Team logo" />
-          <div>
-            <div class="team-code" id="teamCode">—</div>
-            <div class="muted small">Pick from this team. Click a roster slot to filter.</div>
-          </div>
-        </div>
+      <div class="team-stage">
+        <img id="heroLogo" class="hero-logo" alt="Team logo" />
       </div>
 
       <div class="roundline">
-        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 8</div>
+        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 8 • Team —</div>
         <button class="btn" id="newGameBtn">New Game</button>
       </div>
     </section>
 
     <section class="board-grid single-grid">
-      <aside class="panel roster-panel" id="singleRosterPanel">
+      <aside class="panel roster-panel">
         <div class="roster-head">
           <div class="roster-title">Your Roster</div>
           <div class="muted small"><span id="filledCount">0</span>/8</div>
         </div>
-        <div class="muted small roster-rule">FLEX = C/LW/RW only</div>
-
+        <div class="muted small roster-rule">Click any slot to draft that position • FLEX = C/LW/RW only</div>
         <div class="roster-list" id="rosterList"></div>
-
-        <div class="muted small roster-rule bottom">FLEX = C/LW/RW only</div>
       </aside>
 
       <section class="panel players-panel">
@@ -80,11 +69,10 @@
 
         <div class="search-row">
           <input id="searchInput" class="search" type="search" placeholder="Search players..." />
-          <button class="btn tiny" id="clearFilterBtn" title="Clear filter">All</button>
+          <button class="btn tiny" id="clearFilterBtn">All</button>
         </div>
 
         <div class="players-list" id="playersList"></div>
-
         <div class="muted small note" id="dataStatus"></div>
       </section>
     </section>
