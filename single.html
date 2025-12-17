@@ -9,7 +9,7 @@
 <body data-mode="single">
   <div class="bg"></div>
 
-  <header class="topbar">
+  <header class="topbar topbar-grid">
     <div class="topbar-left">
       <a class="btn homebtn" href="index.html">← Home</a>
     </div>
@@ -43,8 +43,8 @@
 
       <div class="team-stage">
         <img id="heroLogo" class="hero-logo" alt="Team logo" />
-        <!-- ✅ timer moved under logo -->
-        <div class="pill timerpill timer-under-logo">⏱ <span id="timerText">0:30</span></div>
+        <!-- BIG DIGITAL CLOCK -->
+        <div class="digital-clock" id="timerText">0:30</div>
       </div>
 
       <div class="roundline">
@@ -75,7 +75,6 @@
         </div>
 
         <div class="players-list" id="playersList"></div>
-        <!-- kept for structure; we hide it via CSS + app.js no longer writes text -->
         <div class="muted small note" id="dataStatus"></div>
       </section>
     </section>
