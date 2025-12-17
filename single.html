@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Single Player — NHL Pick’em Draft by MayerBros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-mode="single">
+  <div class="bg"></div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="btn ghost" href="index.html">← Home</a>
+    </div>
+
+    <div class="topbar-center">
+      <div class="title">NHL Pick’em Draft by MayerBros</div>
+      <div class="subtitle muted">
+        Single Player • Random team rounds • FLEX = C/LW/RW only
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="scorebox">
+        <div class="scoreline">
+          <div class="pill">High Score: <span id="highScore">0</span></div>
+          <button class="btn tiny" id="resetHighScoreBtn" title="Reset High Score">Reset</button>
+        </div>
+        <div class="pill">Score: <span id="currentScore">0</span></div>
+      </div>
+
+      <div class="qrbox">
+        <img class="qr" src="assets/qr.png" alt="QR code" />
+        <div class="qrlabel">Scan to open on phone or tablet</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="board-wrap">
+    <section class="panel team-panel">
+      <div class="team-panel-top">
+        <div class="team-panel-label muted">Current Team</div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-row">
+          <img id="teamLogo" class="team-logo" alt="Team logo" />
+          <div>
+            <div class="team-code" id="teamCode">—</div>
+            <div class="muted small">Pick from this team. Click a roster slot to filter.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="roundline">
+        <div class="muted" id="roundPickLine">Round 1 of 8 • Pick 1 of 8</div>
+        <button class="btn" id="newGameBtn">New Game</button>
+      </div>
+    </section>
+
+    <section class="board-grid single-grid">
+      <aside class="panel roster-panel" id="singleRosterPanel">
+        <div class="roster-head">
+          <div class="roster-title">Your Roster</div>
+          <div class="muted small"><span id="filledCount">0</span>/8</div>
+        </div>
+        <div class="muted small roster-rule">FLEX = C/LW/RW only</div>
+
+        <div class="roster-list" id="rosterList"></div>
+
+        <div class="muted small roster-rule bottom">FLEX = C/LW/RW only</div>
+      </aside>
+
+      <section class="panel players-panel">
+        <div class="players-head">
+          <div class="players-title">Available Players</div>
+          <div class="muted small" id="filterLabel">All positions</div>
+        </div>
+
+        <div class="search-row">
+          <input id="searchInput" class="search" type="search" placeholder="Search players..." />
+          <button class="btn tiny" id="clearFilterBtn" title="Clear filter">All</button>
+        </div>
+
+        <div class="players-list" id="playersList"></div>
+
+        <div class="muted small note" id="dataStatus"></div>
+      </section>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="endModal">
+    <div class="modal-card">
+      <div class="modal-title">Draft Complete</div>
+      <div class="modal-sub muted" id="endSummary">Nice work.</div>
+      <div class="modal-actions">
+        <button class="btn" id="playAgainBtn">Play Again</button>
+        <a class="btn ghost" href="index.html">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
