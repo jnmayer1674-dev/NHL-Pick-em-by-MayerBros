@@ -438,3 +438,17 @@ a{color:inherit; text-decoration:none}
   .draft-btn{padding: 10px 16px; min-width:88px}
   .digital-clock{font-size:64px}
 }
+/* Fix QR image centering inside its box */
+.qrbox{
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centers QR + label horizontally */
+}
+
+.qr{
+  margin: 0 auto;        /* ensures the image itself is centered */
+}
+
+.qrlabel{
+  text-align: center;    /* centers the label text */
+}
