@@ -1,43 +1,30 @@
 /****************************************************
- NHL PICK ’EM by MayerBros
- ONE PAGE GAME (game.html)
+ NHL Pick ’Em by MayerBros — One Page (game.html)
 
- DATA SHAPE (CONFIRMED):
- {
-   meta: {...},
-   players: [
-     { id, name, team, pos, draftPoints, bestSeason }
-   ]
- }
+ Data shape (CONFIRMED):
+   { meta: {...}, players: [...] }
 
- GUARANTEES:
- - NO fantasy points shown
- - Logos load from /assets/logos/{team}.png (lowercase)
- - Single mode = randomized team rounds
- - VS mode = snake draft
+ Logos location (CONFIRMED):
+   /assets/logos/wpg.png (lowercase)
+
+ Behavior:
+ ✅ NO fantasy points shown
+ ✅ Single mode: random team banner + team-locked player pool + Next Team
+ ✅ VS mode: snake draft
+ ✅ Click any player → auto-fill next valid roster slot
+ ✅ FLEX = C/LW/RW only
 ****************************************************/
-
-/* =========================
-   CONFIG
-========================= */
 
 const SLOTS = ["C","LW","RW","D","D","G","FLEX","FLEX"];
 const FLEX_ALLOWED = new Set(["C","LW","RW"]);
 const $ = (q) => document.querySelector(q);
-
-/* =========================
-   MODE
-========================= */
 
 function getMode() {
   const m = new URLSearchParams(window.location.search).get("mode");
   return m === "vs" ? "vs" : "single";
 }
 
-/* =========================
-   LOGOS (CONFIRMED PATH)
-========================= */
-
+/* ---------- Logos (assets/logos, lowercase) ---------- */
 function logoUrl(teamCode) {
   if (!teamCode) return "";
   return `./assets/logos/${String(teamCode).toLowerCase()}.png`;
@@ -50,75 +37,60 @@ function safeImg(imgEl, src) {
   imgEl.onload  = () => { imgEl.style.display = "block"; };
 }
 
-/* =========================
-   POSITIONS / SLOTS
-========================= */
-
+/* ---------- Positions / Slots ---------- */
 function normalizePos(posRaw) {
   if (!posRaw) return new Set();
   return new Set(
     String(posRaw)
       .toUpperCase()
-      .replace(/\s+/g,"")
+      .replace(/\s+/g, "")
       .split(/[\/,|]/)
       .filter(Boolean)
   );
 }
 
 function slotAccepts(slot, posSet) {
-  if (slot === "FLEX") {
-    return [...posSet].some(p => FLEX_ALLOWED.has(p));
-  }
+  if (slot === "FLEX") return [...posSet].some(p => FLEX_ALLOWED.has(p));
   return posSet.has(slot);
 }
 
 function nextSlotIndex(roster, posSet) {
   // Exact slots first
   for (let i = 0; i < roster.length; i++) {
-    if (!roster[i].player && roster[i].slot !== "FLEX" &&
-        slotAccepts(roster[i].slot, posSet)) {
-      return i;
-    }
+    if (!roster[i].player && roster[i].slot !== "FLEX" && slotAccepts(roster[i].slot, posSet)) return i;
   }
   // Then FLEX
   for (let i = 0; i < roster.length; i++) {
-    if (!roster[i].player && roster[i].slot === "FLEX" &&
-        slotAccepts("FLEX", posSet)) {
-      return i;
-    }
+    if (!roster[i].player && roster[i].slot === "FLEX" && slotAccepts("FLEX", posSet)) return i;
   }
   return -1;
 }
 
-/* =========================
-   ROSTERS
-========================= */
-
+/* ---------- Rosters ---------- */
 function emptyRoster() {
   return SLOTS.map(s => ({ slot: s, player: null }));
 }
 
 function rosterFilledCount(roster) {
-  return roster.filter(r => r.player).length;
+  return roster.filter(r => !!r.player).length;
 }
 
 function renderRoster(el, roster) {
   el.innerHTML = "";
   roster.forEach(r => {
+    const name = r.player ? r.player.name : "—";
+    const meta = r.player ? `${r.player.team} • ${r.player.pos}` : "";
     el.innerHTML += `
       <div class="slot">
         <div class="slot__pos">${r.slot}</div>
-        <div class="slot__name">${r.player ? r.player.name : "—"}</div>
-        <div class="slot__meta">${r.player ? `${r.player.team} • ${r.player.pos}` : ""}</div>
+        <div class="slot__name">${name}</div>
+        <div class="slot__meta">${meta}</div>
       </div>
     `;
   });
 }
 
-/* =========================
-   PLAYERS LIST
-========================= */
-
+/* ---------- Players list (blinded; no points) ---------- */
 function renderPlayers(el, players, onPick) {
   el.innerHTML = "";
   players.forEach(p => {
@@ -126,7 +98,7 @@ function renderPlayers(el, players, onPick) {
     row.className = "playerRow";
     row.innerHTML = `
       <div class="playerLeft">
-        <img class="playerLogo" />
+        <img class="playerLogo" alt="" />
         <div class="playerText">
           <div class="playerName">${p.name}</div>
           <div class="playerSub">${p.team} • ${p.pos}</div>
@@ -140,10 +112,7 @@ function renderPlayers(el, players, onPick) {
   });
 }
 
-/* =========================
-   HELPERS
-========================= */
-
+/* ---------- Helpers ---------- */
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -154,23 +123,20 @@ function shuffle(arr) {
 }
 
 function uniqTeams(players) {
-  return [...new Set(players.map(p => p.team))].sort();
+  const set = new Set();
+  players.forEach(p => { if (p.team) set.add(p.team); });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
 }
 
-/* =========================
-   LOAD DATA
-========================= */
-
+/* ---------- Load data ---------- */
 async function loadPlayers() {
   const res = await fetch("./data/players.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load players.json");
+  if (!res.ok) throw new Error("Failed to load ./data/players.json");
 
   const json = await res.json();
-  if (!Array.isArray(json.players)) {
-    throw new Error("players.json.players must be an array");
-  }
+  if (!Array.isArray(json.players)) throw new Error("players.json.players must be an array");
 
-  // IMPORTANT: ignore fantasy points entirely (blinded draft)
+  // Intentionally ignore draftPoints/bestSeason: blinded draft
   return json.players.map(p => ({
     id: p.id,
     name: p.name,
@@ -180,97 +146,108 @@ async function loadPlayers() {
 }
 
 /* =========================
-   SINGLE PLAYER MODE
+   SINGLE MODE (Random Team Rounds)
 ========================= */
-
 function initSingle(players) {
+  $("#modeTitle").textContent = "Single Player";
+  $("#modeSubtitle").textContent = "Random team rounds • Blinded";
+
   $("#layoutSingle").classList.remove("hidden");
   $("#teamBanner").classList.remove("hidden");
 
-  $("#modeTitle").textContent = "Single Player";
-  $("#modeSubtitle").textContent = "Random team • Blinded";
-
   const rosterEl = $("#rosterSingle");
   const listEl = $("#playersListSingle");
-  const teamNameEl = $("#currentTeamName");
-  const teamLogoEl = $("#teamLogo");
   const searchEl = $("#searchSingle");
   const progressEl = $("#singleProgress");
+
+  const teamNameEl = $("#currentTeamName");
+  const teamLogoEl = $("#teamLogo");
+
   const btnNextTeam = $("#btnNextTeam");
   const btnReset = $("#btnReset");
 
   let roster = emptyRoster();
-  let drafted = new Set();
-  let teams = shuffle(uniqTeams(players));
-  let currentTeam = teams[0];
+  let draftedIds = new Set();
 
-  function setTeam(t) {
-    currentTeam = t;
-    teamNameEl.textContent = t;
-    safeImg(teamLogoEl, logoUrl(t));
+  let teamsRemaining = shuffle(uniqTeams(players));
+  let currentTeam = teamsRemaining[0] || "—";
+
+  function setTeam(team) {
+    currentTeam = team || "—";
+    teamNameEl.textContent = currentTeam;
+    safeImg(teamLogoEl, logoUrl(currentTeam));
   }
 
-  function pool() {
-    const q = (searchEl.value || "").toLowerCase();
-    return players.filter(p =>
-      p.team === currentTeam &&
-      !drafted.has(p.id) &&
-      (!q || p.name.toLowerCase().includes(q))
-    );
+  function updateProgress() {
+    progressEl.textContent = `${rosterFilledCount(roster)} / ${roster.length}`;
   }
 
-  function pick(p) {
+  function poolForTeam() {
+    const q = (searchEl.value || "").trim().toLowerCase();
+    const base = players
+      .filter(p => p.team === currentTeam)
+      .filter(p => !draftedIds.has(p.id));
+
+    if (!q) return base;
+    return base.filter(p => p.name.toLowerCase().includes(q));
+  }
+
+  function pickPlayer(p) {
     const idx = nextSlotIndex(roster, normalizePos(p.pos));
-    if (idx === -1) return alert("No valid roster slot.");
+    if (idx === -1) {
+      alert("No valid roster slot available for that player.");
+      return;
+    }
     roster[idx].player = p;
-    drafted.add(p.id);
+    draftedIds.add(p.id);
+
     renderRoster(rosterEl, roster);
-    progressEl.textContent = `${rosterFilledCount(roster)} / 8`;
-    renderPlayers(listEl, pool(), pick);
+    updateProgress();
+    renderPlayers(listEl, poolForTeam(), pickPlayer);
   }
 
   function nextTeam() {
-    teams = teams.filter(t => t !== currentTeam);
-    setTeam(teams[0] || "—");
-    renderPlayers(listEl, pool(), pick);
+    teamsRemaining = teamsRemaining.filter(t => t !== currentTeam);
+    setTeam(teamsRemaining[0] || "—");
+    renderPlayers(listEl, poolForTeam(), pickPlayer);
   }
 
   function reset() {
     roster = emptyRoster();
-    drafted.clear();
-    teams = shuffle(uniqTeams(players));
-    setTeam(teams[0]);
+    draftedIds = new Set();
+    teamsRemaining = shuffle(uniqTeams(players));
+    setTeam(teamsRemaining[0] || "—");
     searchEl.value = "";
     renderRoster(rosterEl, roster);
-    progressEl.textContent = "0 / 8";
-    renderPlayers(listEl, pool(), pick);
+    updateProgress();
+    renderPlayers(listEl, poolForTeam(), pickPlayer);
   }
 
   btnNextTeam.onclick = nextTeam;
   btnReset.onclick = reset;
-  searchEl.oninput = () => renderPlayers(listEl, pool(), pick);
+  searchEl.oninput = () => renderPlayers(listEl, poolForTeam(), pickPlayer);
 
   setTeam(currentTeam);
   renderRoster(rosterEl, roster);
-  progressEl.textContent = "0 / 8";
-  renderPlayers(listEl, pool(), pick);
+  updateProgress();
+  renderPlayers(listEl, poolForTeam(), pickPlayer);
 }
 
 /* =========================
-   VS MODE (SNAKE)
+   VS MODE (Snake Draft)
 ========================= */
-
 function initVs(players) {
-  $("#layoutVs").classList.remove("hidden");
-  $("#turnPill").classList.remove("hidden");
-
   $("#modeTitle").textContent = "2 Player Head-to-Head";
   $("#modeSubtitle").textContent = "Snake draft • Blinded";
+
+  $("#layoutVs").classList.remove("hidden");
+  $("#turnPill").classList.remove("hidden");
 
   const r1El = $("#rosterP1");
   const r2El = $("#rosterP2");
   const listEl = $("#playersListVs");
   const searchEl = $("#searchVs");
+
   const turnPill = $("#turnPill");
   const draftInfo = $("#draftInfo");
   const p1Progress = $("#p1Progress");
@@ -279,85 +256,91 @@ function initVs(players) {
 
   let r1 = emptyRoster();
   let r2 = emptyRoster();
-  let drafted = new Set();
-  let pickIndex = 0;
+  let draftedIds = new Set();
+  let pickIndex = 0; // 0..15
 
   function drafter() {
     const round = Math.floor(pickIndex / 2);
     const forward = round % 2 === 0;
-    return forward ? (pickIndex % 2 === 0 ? 1 : 2)
-                   : (pickIndex % 2 === 0 ? 2 : 1);
-  }
-
-  function pool() {
-    const q = (searchEl.value || "").toLowerCase();
-    return players.filter(p =>
-      !drafted.has(p.id) &&
-      (!q || p.name.toLowerCase().includes(q))
-    );
+    const inRound = pickIndex % 2;
+    return forward ? (inRound === 0 ? 1 : 2) : (inRound === 0 ? 2 : 1);
   }
 
   function updateHeader() {
-    turnPill.textContent = `Turn: Player ${drafter()}`;
+    const d = drafter();
+    turnPill.textContent = `Turn: Player ${d}`;
     draftInfo.textContent = `Pick ${pickIndex + 1} of 16 • Snake • Blinded`;
-    p1Progress.textContent = `${rosterFilledCount(r1)} / 8`;
-    p2Progress.textContent = `${rosterFilledCount(r2)} / 8`;
+    p1Progress.textContent = `${rosterFilledCount(r1)} / ${r1.length}`;
+    p2Progress.textContent = `${rosterFilledCount(r2)} / ${r2.length}`;
   }
 
-  function pick(p) {
+  function pool() {
+    const q = (searchEl.value || "").trim().toLowerCase();
+    const base = players.filter(p => !draftedIds.has(p.id));
+    if (!q) return base;
+    return base.filter(p => p.name.toLowerCase().includes(q));
+  }
+
+  function pickPlayer(p) {
     if (pickIndex >= 16) return;
-    const roster = drafter() === 1 ? r1 : r2;
-    const idx = nextSlotIndex(roster, normalizePos(p.pos));
-    if (idx === -1) return alert("No valid roster slot.");
-    roster[idx].player = p;
-    drafted.add(p.id);
+
+    const targetRoster = drafter() === 1 ? r1 : r2;
+    const idx = nextSlotIndex(targetRoster, normalizePos(p.pos));
+    if (idx === -1) {
+      alert("No valid roster slot available for that player.");
+      return;
+    }
+
+    targetRoster[idx].player = p;
+    draftedIds.add(p.id);
     pickIndex++;
+
     renderRoster(r1El, r1);
     renderRoster(r2El, r2);
     updateHeader();
-    renderPlayers(listEl, pool(), pick);
+    renderPlayers(listEl, pool(), pickPlayer);
   }
 
   function reset() {
     r1 = emptyRoster();
     r2 = emptyRoster();
-    drafted.clear();
+    draftedIds = new Set();
     pickIndex = 0;
     searchEl.value = "";
     renderRoster(r1El, r1);
     renderRoster(r2El, r2);
     updateHeader();
-    renderPlayers(listEl, pool(), pick);
+    renderPlayers(listEl, pool(), pickPlayer);
   }
 
   btnReset.onclick = reset;
-  searchEl.oninput = () => renderPlayers(listEl, pool(), pick);
+  searchEl.oninput = () => renderPlayers(listEl, pool(), pickPlayer);
 
   renderRoster(r1El, r1);
   renderRoster(r2El, r2);
   updateHeader();
-  renderPlayers(listEl, pool(), pick);
+  renderPlayers(listEl, pool(), pickPlayer);
 }
 
 /* =========================
    BOOT
 ========================= */
-
 (async function boot() {
   try {
     const players = await loadPlayers();
     const mode = getMode();
 
-    // reset UI
+    // clean slate
     $("#layoutSingle").classList.add("hidden");
     $("#layoutVs").classList.add("hidden");
     $("#teamBanner").classList.add("hidden");
     $("#turnPill").classList.add("hidden");
 
-    mode === "vs" ? initVs(players) : initSingle(players);
+    if (mode === "vs") initVs(players);
+    else initSingle(players);
 
-  } catch (err) {
-    console.error(err);
-    alert(err.message || String(err));
+  } catch (e) {
+    console.error(e);
+    alert(e.message || String(e));
   }
 })();
