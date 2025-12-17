@@ -1,14 +1,27 @@
-/* --- Base layout (assumes your existing theme/structure) --- */
-.bg{position:fixed;inset:0;background:radial-gradient(circle at 30% 10%,rgba(255,255,255,.08),transparent 40%),radial-gradient(circle at 70% 10%,rgba(255,210,120,.10),transparent 45%),rgba(0,0,0,.85);filter:saturate(1.05);z-index:-1;}
+.bg{position:fixed;inset:0;background:
+radial-gradient(circle at 30% 10%,rgba(255,255,255,.08),transparent 40%),
+radial-gradient(circle at 70% 10%,rgba(255,210,120,.10),transparent 45%),
+rgba(0,0,0,.85);
+filter:saturate(1.05);z-index:-1;}
+
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e9edf4;}
 a{color:inherit;text-decoration:none;}
 .muted{opacity:.75}
 .small{font-size:12px}
-.note{display:none;} /* ✅ hide "Loaded 600 players..." everywhere */
+.note{display:none;} /* hide "Loaded 600 players..." */
 
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;}
-.topbar-left,.topbar-right{display:flex;align-items:center;gap:12px;}
-.topbar-center{text-align:center;flex:1;}
+.topbar{padding:18px 22px;}
+/* ✅ Perfect centering regardless of left/right content */
+.topbar-grid{
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items:center;
+  gap:16px;
+}
+.topbar-left{justify-self:start;display:flex;align-items:center;gap:12px;min-width:0;}
+.topbar-center{justify-self:center;text-align:center;min-width:0;}
+.topbar-right{justify-self:end;display:flex;align-items:center;gap:12px;min-width:0;}
+
 .title{font-size:26px;font-weight:700;letter-spacing:.2px;}
 .subtitle{margin-top:2px;font-size:13px;}
 
@@ -28,15 +41,66 @@ a{color:inherit;text-decoration:none;}
 
 .board-wrap{max-width:1200px;margin:0 auto;padding:0 18px 30px;}
 .panel{background:rgba(10,16,28,.55);border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+
+/* Landing page */
+.landing-panel{padding:22px}
+.landing-h2{margin:0 0 6px;font-size:28px}
+.landing-sub{margin:0 0 18px;font-size:13px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode-card{
+  display:block;
+  padding:18px 18px;
+  border-radius:16px;
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 16px 40px rgba(0,0,0,.25);
+}
+.mode-card:hover{background:rgba(255,255,255,.08)}
+.mode-icon{font-size:30px;margin-bottom:10px;opacity:.9}
+.mode-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.mode-desc{font-size:13px}
+
+/* Draft board */
 .team-panel{padding:14px 14px 16px;margin-bottom:16px}
 .team-panel-top{display:flex;justify-content:center;margin-bottom:8px}
 .team-panel-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.65}
-.team-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;min-height:160px}
-.hero-logo{max-width:210px;max-height:120px;filter:drop-shadow(0 12px 20px rgba(0,0,0,.55))}
 
-/* ✅ timer centered directly under logo */
-.timer-under-logo{margin-top:10px}
-.timerpill{border-color:rgba(255,255,255,.20)}
+.team-stage{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:14px 10px;min-height:190px;
+}
+
+.hero-logo{
+  max-width:210px;max-height:120px;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.55));
+}
+
+/* ✅ Big digital clock under logo (matches your mock style) */
+.digital-clock{
+  margin-top:14px;
+  font-weight:900;
+  font-size:64px;
+  letter-spacing:.06em;
+  line-height:1;
+  padding:10px 18px;
+  border-radius:14px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.10);
+  text-shadow:
+    0 0 14px rgba(255,255,255,.18),
+    0 0 26px rgba(130,200,255,.12);
+}
+
+/* keep it big on desktop, scale on smaller screens */
+@media (max-width: 900px){
+  .digital-clock{font-size:54px}
+}
+@media (max-width: 520px){
+  .digital-clock{font-size:44px;padding:10px 14px}
+}
 
 .roundline{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 0}
 
@@ -69,15 +133,15 @@ a{color:inherit;text-decoration:none;}
 .player-logo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)}
 .player-name{font-weight:700}
 .player-meta{font-size:12px;opacity:.75;margin-top:2px}
+
 .draft-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e9edf4;border-radius:12px;padding:10px 14px;cursor:pointer}
 .draft-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* ✅ Bigger Draft button on mobile */
 @media (max-width: 760px){
+  .mode-grid{grid-template-columns:1fr}
   .single-grid{grid-template-columns:1fr}
   .vs-grid{grid-template-columns:1fr}
-  .topbar{flex-wrap:wrap}
-  .topbar-center{order:3;flex-basis:100%}
   .draft-btn{
     padding: 14px 18px;
     font-size: 14px;
@@ -86,7 +150,6 @@ a{color:inherit;text-decoration:none;}
   }
 }
 
-/* modal */
 .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 .hidden{display:none}
 .modal-card{width:min(520px,92vw);padding:18px;border-radius:16px;background:rgba(10,16,28,.78);border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 80px rgba(0,0,0,.55)}
@@ -94,7 +157,6 @@ a{color:inherit;text-decoration:none;}
 .modal-sub{margin-bottom:14px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end}
 
-/* Nicer HOME button */
 .homebtn{
   background: rgba(0,0,0,.22);
   border: 1px solid rgba(255,255,255,.16);
