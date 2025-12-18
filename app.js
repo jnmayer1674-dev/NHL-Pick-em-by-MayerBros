@@ -328,8 +328,13 @@
     return img;
   }
 
+  // ✅ UPDATED: roster renders points AFTER drafted (to the right of name)
   function renderRoster(container, roster) {
     container.innerHTML = "";
+
+    SLOT_ORDER.forEach((slot) => {
+      const idx = roster.findIndex((_, i) => SLOT_ORDER[i] === slot); // not used but kept logically
+    });
 
     SLOT_ORDER.forEach((slot, i) => {
       const picked = roster[i];
@@ -354,17 +359,21 @@
       name.className = "slot-name" + (!picked ? " muted" : "");
       name.textContent = picked ? playerName(picked) : "—";
 
-      // ✅ NEW: team logo next to drafted player name
+      const pts = document.createElement("div");
+      pts.className = "slot-points" + (!picked ? " muted" : "");
+      pts.textContent = picked ? `${Math.round(playerPoints(picked))} pts` : "";
+
+      row.appendChild(btn);
+
+      // team logo next to drafted player name
       if (picked) {
         const t = playerTeam(picked);
         const logo = makeRosterLogo(t);
-        row.appendChild(btn);
         row.appendChild(logo);
-        row.appendChild(name);
-      } else {
-        row.appendChild(btn);
-        row.appendChild(name);
       }
+
+      row.appendChild(name);
+      row.appendChild(pts);
 
       container.appendChild(row);
     });
